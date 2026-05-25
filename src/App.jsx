@@ -24,18 +24,20 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/planes" element={<PlanesPage />} />
-          {/* Seed es dev-only y, además, las reglas nuevas requieren admin
-              para escribir negocios — lo protegemos para feedback claro. */}
-          <Route
-            path="/__seed"
-            element={
-              <RutaProtegida>
-                <RutaAdmin>
-                  <SeedPage />
-                </RutaAdmin>
-              </RutaProtegida>
-            }
-          />
+          {/* Seed es DEV-only. Vite tree-shakea esta rama en build de
+              producción — la ruta ni siquiera aparece en el bundle. */}
+          {import.meta.env.DEV && (
+            <Route
+              path="/__seed"
+              element={
+                <RutaProtegida>
+                  <RutaAdmin>
+                    <SeedPage />
+                  </RutaAdmin>
+                </RutaProtegida>
+              }
+            />
+          )}
 
           {/* Panel del dueño */}
           <Route path="/panel/login" element={<LoginPage />} />
