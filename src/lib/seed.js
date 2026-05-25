@@ -15,8 +15,16 @@
 import { upsertNegocio } from '../services/negocios'
 import { upsertServicio } from '../services/servicios'
 import { upsertProfesional } from '../services/profesionales'
+import { upsertUsuario } from '../services/usuarios'
 
 const NEGOCIO_ID = 'estudio-bilardo'
+
+// Dueño de prueba — vinculado automáticamente al negocio de ejemplo.
+// Si querés probar con otro usuario, cambiá estos valores y volvé a correr el seed.
+const DUENO_PRUEBA = {
+  uid:   'V3fmWq47WxYNeEvnjSbTbsLlhXE2',
+  email: 'emilianoliguori@gmail.com',
+}
 
 export async function cargarDatosDePrueba() {
   // 1. Negocio
@@ -64,10 +72,19 @@ export async function cargarDatosDePrueba() {
     await upsertProfesional(NEGOCIO_ID, id, datos)
   }
 
+  // 4. Vínculo dueño ↔ negocio.
+  // Documento: usuarios/{uid} con { email, negociosIds: [slug] }.
+  // Id = uid de Firebase Auth, así matchea con auth.currentUser.uid.
+  await upsertUsuario(DUENO_PRUEBA.uid, {
+    email: DUENO_PRUEBA.email,
+    negociosIds: [NEGOCIO_ID],
+  })
+
   return {
     ok: true,
     slug: 'estudio-bilardo',
     serviciosCreados: servicios.length,
     profesionalesCreados: profesionales.length,
+    duenoVinculado: DUENO_PRUEBA.email,
   }
 }

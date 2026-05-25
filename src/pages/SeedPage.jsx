@@ -44,7 +44,8 @@ export default function SeedPage() {
             <p className="font-sans text-ink/70 text-sm mt-1">
               Negocio: <code>{estado.resultado.slug}</code><br />
               Servicios creados: {estado.resultado.serviciosCreados}<br />
-              Profesionales creados: {estado.resultado.profesionalesCreados}
+              Profesionales creados: {estado.resultado.profesionalesCreados}<br />
+              Dueño vinculado: <code>{estado.resultado.duenoVinculado}</code>
             </p>
             <p className="font-sans text-ink/60 text-sm mt-3">
               Probá el flujo en{' '}

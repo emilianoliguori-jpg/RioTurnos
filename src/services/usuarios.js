@@ -10,7 +10,7 @@
 // próxima etapa lo invertimos también: colección `admins` en cada negocio).
 // Por ahora arrancamos con el camino simple usuario→negocios.
 
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 
 const COL = 'usuarios'
@@ -27,4 +27,10 @@ export async function getUsuario(uid) {
 export async function getNegociosDelUsuario(uid) {
   const u = await getUsuario(uid)
   return u?.negociosIds || []
+}
+
+// Crea o sobreescribe el doc de un usuario con id = uid.
+// Idempotente: llamarlo varias veces deja el mismo estado final.
+export async function upsertUsuario(uid, datos) {
+  await setDoc(doc(db, COL, uid), datos)
 }
