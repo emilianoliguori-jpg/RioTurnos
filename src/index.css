@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #F5F1EA;
+  --color-ink: #0F1419;
+  --color-teal: #0B6E6E;
+  --color-teal-dark: #064545;
+  --color-teal-light: #5EEAD4;
+  --color-copper: #C2410C;
+  --color-copper-light: #FB923C;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", ui-serif, Georgia, serif;
+}
