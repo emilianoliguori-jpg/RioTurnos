@@ -1,16 +1,21 @@
-function App() {
+// Router de la app. Tres rutas en esta etapa:
+//   /               -> HomePage (landing temporal)
+//   /__seed         -> SeedPage (oculta, dev only)
+//   /:slug          -> ReservaPage (flujo público del negocio)
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import SeedPage from './pages/SeedPage'
+import ReservaPage from './pages/ReservaPage'
+
+export default function App() {
   return (
-    <main className="min-h-screen bg-paper flex items-center justify-center px-6">
-      <div className="text-center">
-        <h1 className="font-serif text-teal text-5xl sm:text-6xl md:text-7xl font-light tracking-tight">
-          Río Turnos
-        </h1>
-        <p className="font-sans text-ink text-base sm:text-lg mt-4">
-          Tecnología que fluye con tu negocio
-        </p>
-      </div>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/__seed" element={<SeedPage />} />
+        <Route path="/:slug" element={<ReservaPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
-
-export default App
