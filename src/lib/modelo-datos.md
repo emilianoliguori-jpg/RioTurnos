@@ -43,19 +43,24 @@ Documento = un negocio.
 ### `horariosAtencion` (map)
 
 Una entrada por día. Key = `lunes`, `martes`, ..., `domingo`.
-Valor = `{ abre: "09:00", cierra: "19:00", cerrado: false }`, o `{ cerrado: true }`.
+Valor = `{ abierto: boolean, franjas: [{ horaInicio: "HH:MM", horaFin: "HH:MM" }] }`.
+
+Múltiples franjas por día permiten **horario partido** (mañana + tarde con
+descanso al mediodía). Si `abierto = false`, `franjas` se ignora.
 
 ```json
 {
-  "lunes":     { "abre": "09:00", "cierra": "19:00", "cerrado": false },
-  "martes":    { "abre": "09:00", "cierra": "19:00", "cerrado": false },
-  "miercoles": { "abre": "09:00", "cierra": "19:00", "cerrado": false },
-  "jueves":    { "abre": "09:00", "cierra": "19:00", "cerrado": false },
-  "viernes":   { "abre": "09:00", "cierra": "20:00", "cerrado": false },
-  "sabado":    { "abre": "09:00", "cierra": "14:00", "cerrado": false },
-  "domingo":   { "cerrado": true }
+  "lunes":   { "abierto": true,  "franjas": [{ "horaInicio": "09:00", "horaFin": "13:00" },
+                                              { "horaInicio": "16:00", "horaFin": "20:00" }] },
+  "martes":  { "abierto": true,  "franjas": [{ "horaInicio": "09:00", "horaFin": "19:00" }] },
+  "domingo": { "abierto": false, "franjas": [] }
 }
 ```
+
+> El código (`src/lib/horarios.js → normalizarDia`) acepta también el formato
+> viejo `{ abre, cierra, cerrado }` y lo migra al vuelo, para que negocios
+> pre-existentes sigan funcionando hasta que su dueño guarde los horarios
+> desde el panel.
 
 ---
 

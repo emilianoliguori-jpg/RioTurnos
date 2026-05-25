@@ -10,6 +10,7 @@ import {
   formatearFecha,
   etiquetaDia,
 } from '../../lib/fechas'
+import { normalizarDia } from '../../lib/horarios'
 import { getTurnosDelDia } from '../../services/turnos'
 import { getProfesionales } from '../../services/profesionales'
 import { getHorariosDisponibles } from '../../services/disponibilidad'
@@ -45,7 +46,7 @@ export default function Step3Fecha({
 
       const setLibres = new Set()
       for (const p of profesionalesAEvaluar) {
-        const turnos = await getTurnosDelDia(negocio.id, fechaStr, p.id)
+        const turnos = await getTurnosDelDia(negocio.id, fechaStr, { profesionalId: p.id })
         const slots = getHorariosDisponibles({
           horarioDia,
           turnos,
@@ -73,6 +74,29 @@ export default function Step3Fecha({
         <div className="flex gap-2 w-max">
           {dias.map((d) => {
             const seleccionado = formatearFecha(d) === formatearFecha(diaElegido)
+            const cerrado = !normalizarDia(
+              negocio.horariosAtencion?.[diaSemana(d)]
+            ).abierto
+
+            // Días cerrados quedan visualmente atenuados y no clickeables.
+            if (cerrado) {
+              return (
+                <button
+                  key={formatearFecha(d)}
+                  type="button"
+                  disabled
+                  aria-disabled
+                  className="rounded-2xl border border-ink/10 px-4 py-3 font-sans text-sm whitespace-nowrap text-ink/30 cursor-not-allowed bg-paper"
+                  title="Cerrado"
+                >
+                  {etiquetaDia(d)}
+                  <span className="block text-[10px] uppercase tracking-wider mt-0.5">
+                    Cerrado
+                  </span>
+                </button>
+              )
+            }
+
             return (
               <button
                 key={formatearFecha(d)}

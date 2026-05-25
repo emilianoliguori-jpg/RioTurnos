@@ -14,6 +14,8 @@ import SinNegocio from '../components/panel/SinNegocio'
 import SeccionConfiguracion from '../components/panel/SeccionConfiguracion'
 import SeccionServicios from '../components/panel/SeccionServicios'
 import SeccionProfesionales from '../components/panel/SeccionProfesionales'
+import SeccionHorarios from '../components/panel/SeccionHorarios'
+import SeccionAgenda from '../components/panel/SeccionAgenda'
 
 export default function PanelPage() {
   const { usuario } = useAuth()
@@ -118,10 +120,13 @@ export default function PanelPage() {
           <SeccionProfesionales negocio={negocio} />
         )}
         {seccionActiva === 'horarios' && (
-          <SeccionPlaceholder titulo="Horarios" />
+          <SeccionHorarios
+            negocio={negocio}
+            onNegocioActualizado={aplicarCambiosNegocio}
+          />
         )}
         {seccionActiva === 'agenda' && (
-          <SeccionPlaceholder titulo="Agenda" />
+          <SeccionAgenda negocio={negocio} />
         )}
       </div>
     </div>

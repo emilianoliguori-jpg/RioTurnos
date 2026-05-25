@@ -41,13 +41,13 @@ export async function cargarDatosDePrueba() {
       bienvenida: 'Reservá tu turno en pocos pasos.',
     },
     horariosAtencion: {
-      lunes:     { abre: '09:00', cierra: '19:00', cerrado: false },
-      martes:    { abre: '09:00', cierra: '19:00', cerrado: false },
-      miercoles: { abre: '09:00', cierra: '19:00', cerrado: false },
-      jueves:    { abre: '09:00', cierra: '19:00', cerrado: false },
-      viernes:   { abre: '09:00', cierra: '20:00', cerrado: false },
-      sabado:    { abre: '09:00', cierra: '14:00', cerrado: false },
-      domingo:   { cerrado: true },
+      lunes:     { abierto: true,  franjas: [{ horaInicio: '09:00', horaFin: '19:00' }] },
+      martes:    { abierto: true,  franjas: [{ horaInicio: '09:00', horaFin: '19:00' }] },
+      miercoles: { abierto: true,  franjas: [{ horaInicio: '09:00', horaFin: '19:00' }] },
+      jueves:    { abierto: true,  franjas: [{ horaInicio: '09:00', horaFin: '19:00' }] },
+      viernes:   { abierto: true,  franjas: [{ horaInicio: '09:00', horaFin: '20:00' }] },
+      sabado:    { abierto: true,  franjas: [{ horaInicio: '09:00', horaFin: '14:00' }] },
+      domingo:   { abierto: false, franjas: [] },
     },
   })
 

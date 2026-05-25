@@ -1,38 +1,35 @@
 // Servicio: cálculo de horarios disponibles.
 //
 // Esto es lógica PURA (no toca Firestore). Recibe:
-//   - el horario de atención del día,
+//   - el horario de atención del día (puede tener varias franjas),
 //   - los turnos ya tomados ese día por ese profesional,
 //   - la duración del servicio elegido,
 // y devuelve la lista de slots libres como array de "HH:MM".
 //
-// Granularidad: 15 minutos (los slots arrancan en :00, :15, :30, :45). Es el
-// estándar de la industria de turnos y deja flexibilidad sin saturar la UI.
+// Granularidad: 15 minutos (los slots arrancan en :00, :15, :30, :45).
 //
 // Reglas:
-//   - El slot tiene que arrancar dentro del horario de atención.
-//   - El slot tiene que TERMINAR antes (o exactamente cuando) cierra el local.
-//   - El slot no se puede solapar con ningún turno existente del profesional.
+//   - El slot tiene que arrancar dentro de UNA franja de atención del día.
+//   - El slot tiene que TERMINAR antes (o exactamente al final) de la franja.
+//     No "salta" entre franjas — si el local cierra para descansar, ningún
+//     servicio puede usar ese hueco aunque dure poco.
+//   - No solaparse con ningún turno existente del profesional.
 //   - Si el día es hoy, los slots que ya pasaron quedan afuera.
+//   - Si el día está cerrado o no tiene franjas, devuelve [].
 
 import { horaAMinutos, minutosAHora } from '../lib/fechas'
+import { normalizarDia } from '../lib/horarios'
 
 const GRANULARIDAD_MIN = 15
 
-// horarioDia: { abre: "09:00", cierra: "19:00", cerrado: false } o { cerrado: true }
-// turnos: array de { hora: "HH:MM", duracionMinutos: number }
-// duracionMin: duración del servicio que se quiere reservar
-// esHoy: bool — si es true, descarta horarios anteriores a "ahora"
 export function getHorariosDisponibles({
   horarioDia,
   turnos,
   duracionMin,
   esHoy = false,
 }) {
-  if (!horarioDia || horarioDia.cerrado) return []
-
-  const abre = horaAMinutos(horarioDia.abre)
-  const cierra = horaAMinutos(horarioDia.cierra)
+  const dia = normalizarDia(horarioDia)
+  if (!dia.abierto || dia.franjas.length === 0) return []
 
   // Convierto turnos a rangos [inicio, fin) en minutos.
   const ocupados = turnos.map((t) => {
@@ -48,10 +45,18 @@ export function getHorariosDisponibles({
   }
 
   const slots = []
-  for (let t = abre; t + duracionMin <= cierra; t += GRANULARIDAD_MIN) {
-    if (t < pisoAhora) continue
-    const seSolapa = ocupados.some(([ini, fin]) => t < fin && t + duracionMin > ini)
-    if (!seSolapa) slots.push(minutosAHora(t))
+  for (const franja of dia.franjas) {
+    if (!franja.horaInicio || !franja.horaFin) continue
+    const inicio = horaAMinutos(franja.horaInicio)
+    const fin = horaAMinutos(franja.horaFin)
+    for (let t = inicio; t + duracionMin <= fin; t += GRANULARIDAD_MIN) {
+      if (t < pisoAhora) continue
+      const seSolapa = ocupados.some(([ini, finO]) => t < finO && t + duracionMin > ini)
+      if (!seSolapa) slots.push(minutosAHora(t))
+    }
   }
-  return slots
+
+  // Si por solapamiento entre franjas (no debería pasar con buena validación
+  // en el panel) hubiera duplicados, los quitamos y ordenamos.
+  return [...new Set(slots)].sort()
 }

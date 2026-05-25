@@ -1,0 +1,33 @@
+// Métricas resumen del día: total + por estado.
+
+export default function MetricasDia({ turnos, colorAcento = '#0B6E6E' }) {
+  const total = turnos.length
+  const confirmados = turnos.filter((t) => t.estado === 'confirmado').length
+  const atendidos   = turnos.filter((t) => t.estado === 'atendido').length
+  const cancelados  = turnos.filter((t) => t.estado === 'cancelado').length
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <Metrica label="Total"       valor={total}        colorValor={colorAcento} />
+      <Metrica label="Confirmados" valor={confirmados}  colorValor="#0F1419" />
+      <Metrica label="Atendidos"   valor={atendidos}    colorValor="#0B6E6E" />
+      <Metrica label="Cancelados"  valor={cancelados}   colorValor="#C2410C" />
+    </div>
+  )
+}
+
+function Metrica({ label, valor, colorValor }) {
+  return (
+    <div className="rounded-2xl border border-ink/10 bg-white px-4 py-3">
+      <p
+        className="font-serif text-2xl font-light leading-none"
+        style={{ color: colorValor }}
+      >
+        {valor}
+      </p>
+      <p className="font-sans text-ink/50 text-[11px] uppercase tracking-wider mt-1">
+        {label}
+      </p>
+    </div>
+  )
+}

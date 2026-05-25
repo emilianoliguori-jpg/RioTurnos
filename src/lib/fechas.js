@@ -25,6 +25,14 @@ export function formatearFecha(date) {
   return `${y}-${m}-${d}`
 }
 
+// Inversa de formatearFecha: parsea "YYYY-MM-DD" como fecha LOCAL (no UTC).
+// new Date("2026-05-26") interpreta UTC y puede tirar un día menos en
+// zonas con offset negativo — esto lo evita.
+export function parsearFecha(yyyyMmDd) {
+  const [y, m, d] = yyyyMmDd.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 // Devuelve un array de Date con los próximos N días a partir de hoy (incluido hoy).
 export function proximosDias(cantidad = 14) {
   const hoy = new Date()
@@ -47,6 +55,16 @@ export function minutosAHora(min) {
   const h = String(Math.floor(min / 60)).padStart(2, '0')
   const m = String(min % 60).padStart(2, '0')
   return `${h}:${m}`
+}
+
+// Etiqueta larga para títulos del panel: "Martes 26 de mayo".
+export function etiquetaFechaLarga(date) {
+  const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+  const meses = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+  ]
+  return `${dias[date.getDay()]} ${date.getDate()} de ${meses[date.getMonth()]}`
 }
 
 // Etiqueta amigable para mostrar al cliente en el selector de día.
