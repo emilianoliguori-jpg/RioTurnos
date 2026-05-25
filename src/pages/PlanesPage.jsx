@@ -6,12 +6,17 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useGuestSession } from '../lib/useGuestSession'
 import { planesPublicos } from '../lib/planes'
 import TarjetaPlan from '../components/planes/TarjetaPlan'
 import FormSolicitud from '../components/planes/FormSolicitud'
 import ConfirmacionSolicitud from '../components/planes/ConfirmacionSolicitud'
 
 export default function PlanesPage() {
+  // Login anónimo automático para poder subir comprobante y crear solicitud
+  // bajo las reglas de producción.
+  useGuestSession()
+
   const navigate = useNavigate()
   const planes = planesPublicos()
   const [vista, setVista] = useState({ tipo: 'planes' })

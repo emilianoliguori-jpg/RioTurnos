@@ -42,10 +42,15 @@ function generarId() {
   return Math.random().toString(36).slice(2, 10)
 }
 
-// Sube un comprobante al bucket. Devuelve { url, path }.
+// Sube un comprobante al bucket. Devuelve { path }.
 //   onProgreso → callback que recibe un número 0-100 mientras sube.
 //   carpeta    → prefijo del path. Default: comprobantes-suscripcion.
 //                Pasá algo como "comprobantes-turnos/<slug>" para otros flujos.
+//
+// IMPORTANTE: NO devolvemos URL acá. Bajo las reglas de Storage de producción,
+// el cliente anónimo que sube no tiene permiso de READ — y getDownloadURL
+// requiere READ. La URL se obtiene después, on-demand, desde el contexto del
+// admin o dueño que tenga permiso (ver getUrlComprobante abajo).
 export function subirComprobante(
   file,
   { onProgreso, carpeta = 'comprobantes-suscripcion' } = {}
@@ -65,14 +70,16 @@ export function subirComprobante(
         onProgreso?.(pct)
       },
       (err) => reject(err),
-      async () => {
-        try {
-          const url = await getDownloadURL(tarea.snapshot.ref)
-          resolve({ url, path })
-        } catch (err) {
-          reject(err)
-        }
+      () => {
+        resolve({ path })
       }
     )
   })
+}
+
+// Obtiene una URL de descarga para un comprobante ya subido.
+// Llamado on-demand desde el admin o el dueño cuando aprietan "Ver comprobante".
+// Sus reglas de Storage permiten READ — la del cliente anónimo no.
+export async function getUrlComprobante(path) {
+  return await getDownloadURL(ref(storage, path))
 }

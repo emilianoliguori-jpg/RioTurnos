@@ -24,7 +24,18 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/planes" element={<PlanesPage />} />
-          <Route path="/__seed" element={<SeedPage />} />
+          {/* Seed es dev-only y, además, las reglas nuevas requieren admin
+              para escribir negocios — lo protegemos para feedback claro. */}
+          <Route
+            path="/__seed"
+            element={
+              <RutaProtegida>
+                <RutaAdmin>
+                  <SeedPage />
+                </RutaAdmin>
+              </RutaProtegida>
+            }
+          />
 
           {/* Panel del dueño */}
           <Route path="/panel/login" element={<LoginPage />} />

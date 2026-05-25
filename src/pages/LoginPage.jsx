@@ -12,9 +12,13 @@ export default function LoginPage() {
   const [error, setError] = useState(null)
   const [entrando, setEntrando] = useState(false)
 
-  // Si ya hay sesión, mandamos directo al panel.
+  // Si ya hay sesión REAL (Google, no anónima), mandamos directo al panel.
+  // La sesión anónima viene del useGuestSession del flujo público — no
+  // debe redirigir, sino quedaríamos en loop con RutaProtegida.
   useEffect(() => {
-    if (!cargando && usuario) navigate('/panel', { replace: true })
+    if (!cargando && usuario && !usuario.isAnonymous) {
+      navigate('/panel', { replace: true })
+    }
   }, [usuario, cargando, navigate])
 
   async function entrar() {

@@ -1,0 +1,108 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────────────
+    // HELPERS
+    // ─────────────────────────────────────────────────────────────────
+
+    // Lista blanca de admins de Río Tech. Mantenerla en sync con
+    // src/lib/admins.js (la app respeta la misma lista en la UI).
+    function esAdmin() {
+      return request.auth != null
+          && request.auth.uid in ['V3fmWq47WxYNeEvnjSbTbsLlhXE2'];
+    }
+
+    // ¿Hay sesión activa? Cubre Google login y login anónimo.
+    function estaLogueado() {
+      return request.auth != null;
+    }
+
+    // ¿El usuario logueado tiene este slug en su array negociosIds?
+    // Usado para chequear si puede administrar un negocio.
+    // Costo: una lectura extra del doc usuarios/{uid} por evaluación.
+    function esDuenoDe(slug) {
+      return request.auth != null
+          && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+          && slug in get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.negociosIds;
+    }
+
+    // Validación mínima de un turno nuevo: estado válido + campos esperados.
+    // No validamos montos exactos (sería caro y frágil) — la UI ya valida.
+    function turnoValido(d) {
+      return d.estado in ['confirmado', 'pendiente_pago']
+          && d.fecha is string
+          && d.hora is string
+          && d.duracionMinutos is number
+          && d.duracionMinutos > 0
+          && d.servicioId is string
+          && d.servicioNombre is string;
+    }
+
+    // Validación de una solicitud de suscripción.
+    function solicitudValida(d) {
+      return d.estado == 'pendiente'
+          && d.nombreNegocio is string
+          && d.slug is string
+          && d.email is string
+          && d.planKey is string;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // NEGOCIOS
+    // ─────────────────────────────────────────────────────────────────
+
+    match /negocios/{slug} {
+      // Lectura PÚBLICA: el flujo público de reserva la necesita.
+      allow read: if true;
+      // Sólo el dueño vinculado o un admin tocan el negocio.
+      allow create, update, delete: if esAdmin() || esDuenoDe(slug);
+
+      // Servicios y profesionales: misma lógica.
+      match /servicios/{id} {
+        allow read: if true;
+        allow create, update, delete: if esAdmin() || esDuenoDe(slug);
+      }
+      match /profesionales/{id} {
+        allow read: if true;
+        allow create, update, delete: if esAdmin() || esDuenoDe(slug);
+      }
+
+      // Turnos: cualquiera autenticado los CREA (cliente público anónimo).
+      // Sólo el dueño/admin lee, modifica o cancela.
+      match /turnos/{id} {
+        allow create: if estaLogueado() && turnoValido(request.resource.data);
+        allow read, update, delete: if esAdmin() || esDuenoDe(slug);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // USUARIOS — vínculo uid ↔ negocios
+    // ─────────────────────────────────────────────────────────────────
+
+    match /usuarios/{uid} {
+      // El propio user lee y escribe su doc (vinculación post-login).
+      // Admin puede todo.
+      allow read, create, update: if esAdmin()
+                                   || (request.auth != null && request.auth.uid == uid);
+      allow delete: if esAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // SOLICITUDES de suscripción
+    // ─────────────────────────────────────────────────────────────────
+
+    match /solicitudes/{id} {
+      // Crear: cualquier autenticado (incluso anónimo del flujo público).
+      allow create: if estaLogueado() && solicitudValida(request.resource.data);
+      // Ver / modificar / borrar: sólo admin.
+      allow read, update, delete: if esAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // DEFAULT DENY
+    // Cualquier ruta no listada arriba queda denegada por no tener regla.
+    // ─────────────────────────────────────────────────────────────────
+  }
+}

@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { useGuestSession } from '../lib/useGuestSession'
 import { getNegocioPorSlug } from '../services/negocios'
 import { getServicios } from '../services/servicios'
 import { getProfesionales } from '../services/profesionales'
@@ -29,6 +30,9 @@ import Step5Confirmacion from '../components/reserva/Step5Confirmacion'
 
 export default function ReservaPage() {
   const { slug } = useParams()
+  // Arranca login anónimo si nadie está logueado. Necesario para que las
+  // reglas permitan crear turnos y subir comprobantes al cliente público.
+  useGuestSession()
 
   const [estadoCarga, setEstadoCarga] = useState({
     cargando: true,
@@ -142,9 +146,9 @@ export default function ReservaPage() {
   }
 
   // Step pago — usuario apretó "Ya transferí"
-  // payload puede traer { urlComprobante } si subió comprobante en la app.
-  async function alConfirmarTransferencia({ urlComprobante } = {}) {
-    await crearYAvanzar(datosCliente, 'pendiente_pago', { urlComprobante })
+  // payload puede traer { pathComprobante } si subió comprobante en la app.
+  async function alConfirmarTransferencia({ pathComprobante } = {}) {
+    await crearYAvanzar(datosCliente, 'pendiente_pago', { pathComprobante })
   }
 
   // Step pago — usuario apretó "Pagar en el local" (solo si !pagoObligatorio)
@@ -179,10 +183,10 @@ export default function ReservaPage() {
         turno.tipoCobroAplicado = tipoCobro
       }
 
-      // Comprobante (opcional): si el cliente lo subió en la app, lo
-      // guardamos. Si lo está mandando por WhatsApp, no escribimos el campo.
-      if (extra.urlComprobante) {
-        turno.urlComprobante = extra.urlComprobante
+      // Comprobante (opcional): si el cliente lo subió en la app, guardamos
+      // el path. La URL se obtiene on-demand cuando el dueño lo abre.
+      if (extra.pathComprobante) {
+        turno.pathComprobante = extra.pathComprobante
       }
 
       await crearTurno(negocio.id, turno)

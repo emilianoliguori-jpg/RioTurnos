@@ -23,7 +23,7 @@ export default function FormSolicitud({ plan, onVolver, onEnviada }) {
     whatsapp: '',
   })
   const [slugEstado, setSlugEstado] = useState('idle')
-  const [comprobante, setComprobante] = useState(null) // {url, path} | null
+  const [comprobante, setComprobante] = useState(null) // {path} | null
   const [aliasCopiado, setAliasCopiado] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
@@ -83,7 +83,6 @@ export default function FormSolicitud({ plan, onVolver, onEnviada }) {
         whatsapp: form.whatsapp.trim(),
         planKey: plan.key,
         monto: plan.precio,
-        urlComprobante: comprobante.url,
         pathComprobante: comprobante.path,
       })
       onEnviada?.({ id, email: emailLimpio })

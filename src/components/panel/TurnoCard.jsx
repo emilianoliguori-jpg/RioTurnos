@@ -4,6 +4,7 @@
 // (SeccionAgenda) — esta card es presentacional salvo por las acciones.
 
 import { formatearPrecio } from '../../lib/formato'
+import BotonVerComprobante from '../comun/BotonVerComprobante'
 
 export default function TurnoCard({
   turno,
@@ -89,17 +90,12 @@ export default function TurnoCard({
       )}
 
       {/* Comprobante (si el cliente lo subió en la app — si no, vino por WhatsApp) */}
-      {turno.urlComprobante && (
+      {(turno.pathComprobante || turno.urlComprobante) && (
         <div className="mt-3">
-          <a
-            href={turno.urlComprobante}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-3 py-1.5 font-sans text-xs text-ink hover:bg-ink/5 transition"
-          >
-            <IconoArchivo />
-            Ver comprobante
-          </a>
+          <BotonVerComprobante
+            pathComprobante={turno.pathComprobante}
+            urlComprobante={turno.urlComprobante}
+          />
         </div>
       )}
 
@@ -162,15 +158,6 @@ export default function TurnoCard({
         </div>
       )}
     </article>
-  )
-}
-
-function IconoArchivo() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-    </svg>
   )
 }
 

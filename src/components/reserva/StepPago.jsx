@@ -27,7 +27,7 @@ export default function StepPago({
   onPagarEnLocal,
 }) {
   const [aliasCopiado, setAliasCopiado] = useState(false)
-  const [comprobante, setComprobante] = useState(null) // {url, path} | null
+  const [comprobante, setComprobante] = useState(null) // {path} | null
   const [estadoSubida, setEstadoSubida] = useState('idle') // idle | subiendo | listo | error
   const subiendo = estadoSubida === 'subiendo'
 
@@ -115,7 +115,7 @@ export default function StepPago({
       <div className="mt-6 space-y-3">
         <BotonAcento
           onClick={() =>
-            onConfirmarTransferencia({ urlComprobante: comprobante?.url || null })
+            onConfirmarTransferencia({ pathComprobante: comprobante?.path || null })
           }
           disabled={enviando || subiendo}
           colorAcento={colorAcento}

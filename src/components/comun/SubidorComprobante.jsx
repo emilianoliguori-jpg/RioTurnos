@@ -4,7 +4,9 @@
 // resultado y permite reemplazar.
 //
 // Props:
-//   onSubido({url, path}) — callback cuando termina. Llamado con null al quitar.
+//   onSubido({path}) — callback cuando termina. Llamado con null al quitar.
+//                      Nota: NO devuelve URL — la URL se pide on-demand desde
+//                      el admin/dueño con permiso, vía getUrlComprobante(path).
 //   onCambioEstado(estado) — opcional. Estado: 'idle' | 'subiendo' | 'listo' | 'error'.
 //                            Útil si el padre necesita deshabilitar otros botones
 //                            mientras hay subida en curso.
