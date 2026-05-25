@@ -1,9 +1,9 @@
 // Barra de pestañas del panel.
 // Mobile-first: scroll horizontal si no entran. En desktop quedan en línea.
-// Las secciones se completan en la etapa 3b — por ahora todas muestran
-// "Próximamente".
+// "Resumen" va primero porque es lo que el dueño abre cuando entra.
 
 const SECCIONES = [
+  { key: 'resumen',       label: 'Resumen' },
   { key: 'configuracion', label: 'Configuración' },
   { key: 'servicios',     label: 'Servicios' },
   { key: 'profesionales', label: 'Profesionales' },

@@ -1,6 +1,8 @@
 // Métricas resumen del día: total + por estado.
 // Incluye "Pendientes" (de pago) — los turnos pendiente_pago.
 
+import Metrica from '../comun/Metrica'
+
 export default function MetricasDia({ turnos, colorAcento = '#0B6E6E' }) {
   const total       = turnos.length
   const confirmados = turnos.filter((t) => t.estado === 'confirmado').length
@@ -15,22 +17,6 @@ export default function MetricasDia({ turnos, colorAcento = '#0B6E6E' }) {
       <Metrica label="Pendientes"  valor={pendientes}   colorValor="#C2410C" />
       <Metrica label="Atendidos"   valor={atendidos}    colorValor="#0B6E6E" />
       <Metrica label="Cancelados"  valor={cancelados}   colorValor="#7B2D3A" />
-    </div>
-  )
-}
-
-function Metrica({ label, valor, colorValor }) {
-  return (
-    <div className="rounded-2xl border border-ink/10 bg-white px-4 py-3">
-      <p
-        className="font-serif text-2xl font-light leading-none"
-        style={{ color: colorValor }}
-      >
-        {valor}
-      </p>
-      <p className="font-sans text-ink/50 text-[11px] uppercase tracking-wider mt-1">
-        {label}
-      </p>
     </div>
   )
 }

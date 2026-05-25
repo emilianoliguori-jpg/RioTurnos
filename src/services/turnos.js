@@ -11,6 +11,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../lib/firebase'
+import { formatearFecha } from '../lib/fechas'
 
 function colRef(negocioId) {
   return collection(db, 'negocios', negocioId, 'turnos')
@@ -54,6 +55,25 @@ export async function confirmarPagoTurno(negocioId, turnoId) {
     estado: 'confirmado',
     fechaConfirmacionPago: serverTimestamp(),
   })
+}
+
+// Devuelve TODOS los turnos del mes actual (día 1 → hoy inclusive).
+// Sin filtrar por estado: el caller (estadisticas.js) los agrupa después.
+// Una sola query para alimentar todo el dashboard del dueño.
+export async function getTurnosDelMes(negocioId) {
+  const hoy = new Date()
+  const y = hoy.getFullYear()
+  const m = String(hoy.getMonth() + 1).padStart(2, '0')
+  const dia1 = `${y}-${m}-01`
+  const hoyStr = formatearFecha(hoy)
+
+  const q = query(
+    colRef(negocioId),
+    where('fecha', '>=', dia1),
+    where('fecha', '<=', hoyStr)
+  )
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
 // Lista todos los turnos en estado pendiente_pago del negocio.

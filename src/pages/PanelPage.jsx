@@ -11,6 +11,7 @@ import HeaderPanel from '../components/panel/HeaderPanel'
 import TabsPanel from '../components/panel/TabsPanel'
 import SeccionPlaceholder from '../components/panel/SeccionPlaceholder'
 import SinNegocio from '../components/panel/SinNegocio'
+import SeccionResumen from '../components/panel/SeccionResumen'
 import SeccionConfiguracion from '../components/panel/SeccionConfiguracion'
 import SeccionServicios from '../components/panel/SeccionServicios'
 import SeccionProfesionales from '../components/panel/SeccionProfesionales'
@@ -26,7 +27,7 @@ export default function PanelPage() {
     sinNegocio: false,
     error: null,
   })
-  const [seccionActiva, setSeccionActiva] = useState('configuracion')
+  const [seccionActiva, setSeccionActiva] = useState('resumen')
 
   useEffect(() => {
     if (!usuario) return
@@ -111,6 +112,9 @@ export default function PanelPage() {
       />
 
       <div className="max-w-3xl mx-auto px-5 py-8">
+        {seccionActiva === 'resumen' && (
+          <SeccionResumen negocio={negocio} />
+        )}
         {seccionActiva === 'configuracion' && (
           <SeccionConfiguracion
             negocio={negocio}
