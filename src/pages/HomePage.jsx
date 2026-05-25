@@ -1,5 +1,6 @@
-// Landing temporal del root "/". Mientras no haya un directorio de negocios,
-// solo muestra una bienvenida y aclaración de uso.
+// Landing temporal del root "/".
+
+import { Link } from 'react-router-dom'
 
 export default function HomePage() {
   return (
@@ -11,9 +12,25 @@ export default function HomePage() {
         <p className="font-sans text-ink text-base sm:text-lg mt-4">
           Tecnología que fluye con tu negocio
         </p>
-        <p className="font-sans text-ink/50 text-sm mt-8">
-          Esta es la home pública. Para reservar, accedé al link del negocio
-          (ej: <code className="text-ink/70">/estudio-bilardo</code>).
+
+        <div className="mt-10 flex flex-col items-center gap-3">
+          <Link
+            to="/planes"
+            className="inline-flex items-center justify-center rounded-full bg-teal text-paper px-6 py-3 font-sans text-sm font-medium hover:opacity-90 transition"
+          >
+            Ver planes
+          </Link>
+          <Link
+            to="/panel/login"
+            className="font-sans text-sm text-ink/60 hover:text-ink underline"
+          >
+            Soy cliente · entrar al panel
+          </Link>
+        </div>
+
+        <p className="font-sans text-ink/40 text-xs mt-10">
+          ¿Sos cliente del negocio? El link de reservas te lo da el local
+          (ej: <code className="text-ink/60">/estudio-bilardo</code>).
         </p>
       </div>
     </main>

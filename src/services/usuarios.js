@@ -6,11 +6,18 @@
 //   negociosIds: string[] — slugs de los negocios que administra
 //
 // Diseño multi-tenant: un usuario puede administrar N negocios (caso
-// franquicias o cadenas), y un negocio puede tener N usuarios admin (en una
-// próxima etapa lo invertimos también: colección `admins` en cada negocio).
-// Por ahora arrancamos con el camino simple usuario→negocios.
+// franquicias o cadenas).
 
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  arrayUnion,
+} from 'firebase/firestore'
 import { db } from '../lib/firebase'
 
 const COL = 'usuarios'
@@ -33,4 +40,36 @@ export async function getNegociosDelUsuario(uid) {
 // Idempotente: llamarlo varias veces deja el mismo estado final.
 export async function upsertUsuario(uid, datos) {
   await setDoc(doc(db, COL, uid), datos)
+}
+
+// Vincula automáticamente al usuario con cualquier negocio que tenga
+// `emailDuenoAutorizado === email`. Se llama en cada login.
+//
+// Idempotente: usa setDoc con arrayUnion, así si ya estaba vinculado no
+// genera duplicados ni escrituras innecesarias.
+//
+// Devuelve { vinculados: number, slugs: string[] }.
+export async function vincularPorEmail(uid, email) {
+  if (!email) return { vinculados: 0, slugs: [] }
+
+  const q = query(
+    collection(db, 'negocios'),
+    where('emailDuenoAutorizado', '==', email)
+  )
+  const snap = await getDocs(q)
+  if (snap.empty) return { vinculados: 0, slugs: [] }
+
+  // Por convención, id del doc del negocio = slug.
+  const slugs = snap.docs.map((d) => d.id)
+
+  await setDoc(
+    doc(db, COL, uid),
+    {
+      email,
+      negociosIds: arrayUnion(...slugs),
+    },
+    { merge: true }
+  )
+
+  return { vinculados: slugs.length, slugs }
 }

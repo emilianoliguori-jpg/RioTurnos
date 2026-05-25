@@ -18,7 +18,7 @@ import SeccionHorarios from '../components/panel/SeccionHorarios'
 import SeccionAgenda from '../components/panel/SeccionAgenda'
 
 export default function PanelPage() {
-  const { usuario } = useAuth()
+  const { usuario, cargandoVinculacion } = useAuth()
 
   const [estado, setEstado] = useState({
     cargando: true,
@@ -30,6 +30,10 @@ export default function PanelPage() {
 
   useEffect(() => {
     if (!usuario) return
+    // Esperar a que termine la vinculación automática email→uid antes de
+    // consultar usuarios/{uid}. Si no, podemos leer un doc vacío justo antes
+    // de que se cree y mostrar "sin negocio" cuando en realidad sí lo tiene.
+    if (cargandoVinculacion) return
     let cancelado = false
 
     async function cargar() {
@@ -57,7 +61,7 @@ export default function PanelPage() {
     }
     cargar()
     return () => { cancelado = true }
-  }, [usuario])
+  }, [usuario, cargandoVinculacion])
 
   if (estado.cargando) {
     return (

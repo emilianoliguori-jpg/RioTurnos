@@ -57,6 +57,27 @@ export function minutosAHora(min) {
   return `${h}:${m}`
 }
 
+// Etiqueta corta: "Mar 26 May" (para listados densos).
+export function etiquetaFechaCorta(date) {
+  const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+  const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+  return `${dias[date.getDay()]} ${date.getDate()} ${meses[date.getMonth()]}`
+}
+
+// "Mar 26 May · 14:33" — fecha corta + hora local.
+export function etiquetaFechaHora(date) {
+  const h = String(date.getHours()).padStart(2, '0')
+  const m = String(date.getMinutes()).padStart(2, '0')
+  return `${etiquetaFechaCorta(date)} · ${h}:${m}`
+}
+
+// "YYYY-MM" del momento actual (sirve para tracking de pagos mensuales).
+export function mesActualKey() {
+  const d = new Date()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  return `${d.getFullYear()}-${m}`
+}
+
 // Etiqueta larga para títulos del panel: "Martes 26 de mayo".
 export function etiquetaFechaLarga(date) {
   const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']

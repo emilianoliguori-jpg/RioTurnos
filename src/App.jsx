@@ -7,11 +7,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import { AuthProvider } from './lib/AuthContext'
 import RutaProtegida from './components/RutaProtegida'
+import RutaAdmin from './components/RutaAdmin'
 
 import HomePage from './pages/HomePage'
 import SeedPage from './pages/SeedPage'
 import LoginPage from './pages/LoginPage'
 import PanelPage from './pages/PanelPage'
+import AdminPage from './pages/AdminPage'
+import PlanesPage from './pages/PlanesPage'
 import ReservaPage from './pages/ReservaPage'
 
 export default function App() {
@@ -20,15 +23,28 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/planes" element={<PlanesPage />} />
           <Route path="/__seed" element={<SeedPage />} />
 
-          {/* Panel admin */}
+          {/* Panel del dueño */}
           <Route path="/panel/login" element={<LoginPage />} />
           <Route
             path="/panel"
             element={
               <RutaProtegida>
                 <PanelPage />
+              </RutaProtegida>
+            }
+          />
+
+          {/* Admin de Río Tech */}
+          <Route
+            path="/admin"
+            element={
+              <RutaProtegida>
+                <RutaAdmin>
+                  <AdminPage />
+                </RutaAdmin>
               </RutaProtegida>
             }
           />
