@@ -40,6 +40,19 @@ service cloud.firestore {
           && d.servicioNombre is string;
     }
 
+    // Validación mínima de un slot (subcolección espejo, pública para read).
+    // No validamos estado contra una lista cerrada porque el backfill puede
+    // crear slots con estado "atendido" o "cancelado" para turnos viejos.
+    // La UI filtra cancelados al leer; un estado raro no rompe nada.
+    function slotValido(d) {
+      return d.estado is string
+          && d.fecha is string
+          && d.hora is string
+          && d.duracionMinutos is number
+          && d.duracionMinutos > 0
+          && d.servicioId is string;
+    }
+
     // Validación de una solicitud de suscripción.
     function solicitudValida(d) {
       return d.estado == 'pendiente'
@@ -74,6 +87,17 @@ service cloud.firestore {
       match /turnos/{id} {
         allow create: if estaLogueado() && turnoValido(request.resource.data);
         allow read, update, delete: if esAdmin() || esDuenoDe(slug);
+      }
+
+      // Slots: subcolección espejo pública para que el cliente público pueda
+      // calcular disponibilidad SIN ver datos personales (que viven en turnos).
+      // Lectura pública. Escritura validada (igual modelo que turnos).
+      // Update/delete sólo dueño/admin — los slots se mantienen sincronizados
+      // por el servicio turnos.js (writeBatch).
+      match /slots/{id} {
+        allow read: if true;
+        allow create: if estaLogueado() && slotValido(request.resource.data);
+        allow update, delete: if esAdmin() || esDuenoDe(slug);
       }
     }
 

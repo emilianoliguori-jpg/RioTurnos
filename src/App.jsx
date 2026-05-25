@@ -11,6 +11,7 @@ import RutaAdmin from './components/RutaAdmin'
 
 import HomePage from './pages/HomePage'
 import SeedPage from './pages/SeedPage'
+import MigracionSlots from './pages/MigracionSlots'
 import LoginPage from './pages/LoginPage'
 import PanelPage from './pages/PanelPage'
 import AdminPage from './pages/AdminPage'
@@ -24,19 +25,31 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/planes" element={<PlanesPage />} />
-          {/* Seed es DEV-only. Vite tree-shakea esta rama en build de
-              producción — la ruta ni siquiera aparece en el bundle. */}
+          {/* Rutas DEV-only. Vite tree-shakea estas ramas en build de
+              producción — las rutas ni siquiera aparecen en el bundle. */}
           {import.meta.env.DEV && (
-            <Route
-              path="/__seed"
-              element={
-                <RutaProtegida>
-                  <RutaAdmin>
-                    <SeedPage />
-                  </RutaAdmin>
-                </RutaProtegida>
-              }
-            />
+            <>
+              <Route
+                path="/__seed"
+                element={
+                  <RutaProtegida>
+                    <RutaAdmin>
+                      <SeedPage />
+                    </RutaAdmin>
+                  </RutaProtegida>
+                }
+              />
+              <Route
+                path="/__migrar-slots"
+                element={
+                  <RutaProtegida>
+                    <RutaAdmin>
+                      <MigracionSlots />
+                    </RutaAdmin>
+                  </RutaProtegida>
+                }
+              />
+            </>
           )}
 
           {/* Panel del dueño */}

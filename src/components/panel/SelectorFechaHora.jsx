@@ -19,7 +19,7 @@ import {
   diaSemana,
 } from '../../lib/fechas'
 import { normalizarDia } from '../../lib/horarios'
-import { getTurnosDelDia } from '../../services/turnos'
+import { getSlotsOcupadosDelDia } from '../../services/slots'
 import { getProfesionales } from '../../services/profesionales'
 import { getHorariosDisponibles } from '../../services/disponibilidad'
 
@@ -67,16 +67,17 @@ export default function SelectorFechaHora({
 
       const setLibres = new Set()
       for (const p of profsAEvaluar) {
-        let turnos = await getTurnosDelDia(negocio.id, fechaStr, {
+        // Lee de slots (público). El id del slot = id del turno, así el
+        // filtro de excluirTurnoId al reagendar sigue funcionando igual.
+        let ocupados = await getSlotsOcupadosDelDia(negocio.id, fechaStr, {
           profesionalId: p.id,
         })
-        // Si estamos reagendando, descartar el propio turno para no autobloquearse.
         if (excluirTurnoId) {
-          turnos = turnos.filter((t) => t.id !== excluirTurnoId)
+          ocupados = ocupados.filter((s) => s.id !== excluirTurnoId)
         }
         const libres = getHorariosDisponibles({
           horarioDia,
-          turnos,
+          turnos: ocupados,
           duracionMin,
           esHoy: fechaStr === formatearFecha(new Date()),
         })

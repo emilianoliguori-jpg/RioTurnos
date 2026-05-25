@@ -12,7 +12,8 @@ negocios/{negocioId}
   ├── (campos del negocio)
   ├── servicios/{servicioId}
   ├── profesionales/{profesionalId}
-  └── turnos/{turnoId}
+  ├── turnos/{turnoId}      ← PRIVADO (PII del cliente, montos, comprobante)
+  └── slots/{slotId}        ← PÚBLICO READ (espejo mínimo para disponibilidad)
 ```
 
 Cada negocio (tenant) vive en un documento de la colección `negocios`. Todas
@@ -128,6 +129,38 @@ pero podría ser una sala/box en otros rubros.
 | `pendiente_pago`  | flujo público (transferencia) | **Sí**     | El cliente reservó, dice que transfirió, falta que el dueño verifique el comprobante. **Ocupa el horario igual** para que nadie más lo tome. |
 | `atendido`        | panel (botón "Marcar atendido") | Sí       | El servicio ya se prestó. Cierra el ciclo. |
 | `cancelado`       | flujo público / panel    | No               | Cancelado por el cliente o por el dueño (también se usa para "rechazar pago"). Libera el slot. |
+
+---
+
+## Subcolección `negocios/{id}/slots`
+
+Espejo mínimo de los turnos pensado para que el **cliente público anónimo**
+pueda calcular qué horarios están ocupados **sin** poder ver datos personales
+(nombre, whatsapp, email) ni datos financieros (monto, comprobante).
+
+| Campo            | Tipo    | Ejemplo       |
+|------------------|---------|---------------|
+| fecha            | string  | "2026-05-30"  |
+| hora             | string  | "14:30"       |
+| duracionMinutos  | number  | 60            |
+| profesionalId    | string \| null | "lucia" o null si "cualquiera" |
+| servicioId       | string  | "corte-mujer" |
+| estado           | string  | mismo que el turno parent |
+
+**Id del slot = id del turno.** Esto permite eliminar/excluir por id en el
+panel (ej: al reagendar, el propio turno no se autobloquea).
+
+### Mantenimiento (importante)
+
+Los slots se sincronizan vía `writeBatch` ATÓMICO desde
+`src/services/turnos.js`. **Cualquier mutación de turnos pasa por ese
+servicio**, nunca por `updateDoc`/`addDoc` directo. Si agregás un campo al
+turno que afecta disponibilidad (duración, profesional, fecha/hora, estado),
+sumalo a `CAMPOS_SLOT` en `src/services/slots.js` y los batches lo replican
+automáticamente.
+
+Si NO afecta disponibilidad (nombre del cliente, monto, comprobante),
+**no lo agregues a `CAMPOS_SLOT`** — queda solo en turnos.
 
 **Por qué `fecha` y `hora` son strings** (en vez de un Timestamp): evita
 problemas de zona horaria del navegador del cliente vs el negocio. La agenda

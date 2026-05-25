@@ -11,7 +11,7 @@ import {
   etiquetaDia,
 } from '../../lib/fechas'
 import { normalizarDia } from '../../lib/horarios'
-import { getTurnosDelDia } from '../../services/turnos'
+import { getSlotsOcupadosDelDia } from '../../services/slots'
 import { getProfesionales } from '../../services/profesionales'
 import { getHorariosDisponibles } from '../../services/disponibilidad'
 
@@ -46,14 +46,18 @@ export default function Step3Fecha({
 
       const setLibres = new Set()
       for (const p of profesionalesAEvaluar) {
-        const turnos = await getTurnosDelDia(negocio.id, fechaStr, { profesionalId: p.id })
-        const slots = getHorariosDisponibles({
+        // Lee de la subcolección PÚBLICA slots (no de turnos, que es privado).
+        // Tiene los campos suficientes (hora, duracionMinutos) sin exponer PII.
+        const ocupados = await getSlotsOcupadosDelDia(negocio.id, fechaStr, {
+          profesionalId: p.id,
+        })
+        const libres = getHorariosDisponibles({
           horarioDia,
-          turnos,
+          turnos: ocupados,
           duracionMin: servicio.duracionMinutos,
           esHoy: fechaStr === formatearFecha(new Date()),
         })
-        slots.forEach((s) => setLibres.add(s))
+        libres.forEach((s) => setLibres.add(s))
       }
       if (cancelado) return
       setHorariosLibres([...setLibres].sort())
