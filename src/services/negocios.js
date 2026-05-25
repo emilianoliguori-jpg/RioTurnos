@@ -9,6 +9,7 @@ import {
   getDocs,
   doc,
   setDoc,
+  updateDoc,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../lib/firebase'
@@ -31,4 +32,11 @@ export async function upsertNegocio(id, datos) {
     ...datos,
     creadoEn: serverTimestamp(),
   })
+}
+
+// Actualización parcial. Sólo toca los campos pasados, deja el resto intacto.
+// Usado por el panel del dueño para no pisar horariosAtencion u otros campos
+// que no edita la sección actual.
+export async function actualizarNegocio(id, datosParciales) {
+  await updateDoc(doc(db, COL, id), datosParciales)
 }

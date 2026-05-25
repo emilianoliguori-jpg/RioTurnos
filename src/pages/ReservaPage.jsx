@@ -150,6 +150,11 @@ export default function ReservaPage() {
         <p className="font-sans text-ink/50 text-xs uppercase tracking-wider">
           {negocio.nombre}
         </p>
+        {paso === 1 && negocio.textos?.bienvenida && (
+          <p className="font-sans text-ink/70 text-sm mt-1 mb-4">
+            {negocio.textos.bienvenida}
+          </p>
+        )}
         <StepProgress paso={paso} total={5} colorAcento={colorAcento} />
       </div>
 

@@ -11,14 +11,9 @@ import HeaderPanel from '../components/panel/HeaderPanel'
 import TabsPanel from '../components/panel/TabsPanel'
 import SeccionPlaceholder from '../components/panel/SeccionPlaceholder'
 import SinNegocio from '../components/panel/SinNegocio'
-
-const LABELS_SECCION = {
-  configuracion: 'Configuración',
-  servicios:     'Servicios',
-  profesionales: 'Profesionales',
-  horarios:      'Horarios',
-  agenda:        'Agenda',
-}
+import SeccionConfiguracion from '../components/panel/SeccionConfiguracion'
+import SeccionServicios from '../components/panel/SeccionServicios'
+import SeccionProfesionales from '../components/panel/SeccionProfesionales'
 
 export default function PanelPage() {
   const { usuario } = useAuth()
@@ -90,6 +85,16 @@ export default function PanelPage() {
   const { negocio } = estado
   const colorAcento = negocio.colorAcento || '#0B6E6E'
 
+  // Callback que las secciones invocan al actualizar el negocio en Firestore.
+  // Hace merge local así el header y el color de la barra de tabs se refrescan
+  // sin recargar la página.
+  function aplicarCambiosNegocio(parciales) {
+    setEstado((e) => ({
+      ...e,
+      negocio: { ...e.negocio, ...parciales },
+    }))
+  }
+
   return (
     <div className="min-h-screen bg-paper">
       <HeaderPanel nombreNegocio={negocio.nombre} />
@@ -99,8 +104,25 @@ export default function PanelPage() {
         colorAcento={colorAcento}
       />
 
-      <div className="max-w-5xl mx-auto px-5 py-8">
-        <SeccionPlaceholder titulo={LABELS_SECCION[seccionActiva]} />
+      <div className="max-w-3xl mx-auto px-5 py-8">
+        {seccionActiva === 'configuracion' && (
+          <SeccionConfiguracion
+            negocio={negocio}
+            onNegocioActualizado={aplicarCambiosNegocio}
+          />
+        )}
+        {seccionActiva === 'servicios' && (
+          <SeccionServicios negocio={negocio} />
+        )}
+        {seccionActiva === 'profesionales' && (
+          <SeccionProfesionales negocio={negocio} />
+        )}
+        {seccionActiva === 'horarios' && (
+          <SeccionPlaceholder titulo="Horarios" />
+        )}
+        {seccionActiva === 'agenda' && (
+          <SeccionPlaceholder titulo="Agenda" />
+        )}
       </div>
     </div>
   )
