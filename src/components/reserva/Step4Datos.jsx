@@ -6,7 +6,12 @@ import { useState } from 'react'
 import StepHeader from './StepHeader'
 import BotonAcento from '../BotonAcento'
 
-export default function Step4Datos({ onConfirmar, colorAcento, enviando }) {
+export default function Step4Datos({
+  onConfirmar,
+  colorAcento,
+  enviando,
+  etiquetaBoton = 'Confirmar turno',
+}) {
   const [nombre, setNombre] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [email, setEmail] = useState('')
@@ -65,7 +70,7 @@ export default function Step4Datos({ onConfirmar, colorAcento, enviando }) {
             disabled={!valido || enviando}
             colorAcento={colorAcento}
           >
-            {enviando ? 'Confirmando…' : 'Confirmar turno'}
+            {enviando ? 'Confirmando…' : etiquetaBoton}
           </BotonAcento>
         </div>
       </form>

@@ -37,6 +37,12 @@ export async function cargarDatosDePrueba() {
     colorAcento: '#0B6E6E',
     logoUrl: '',
     aliasPago: '',
+    cobro: {
+      activado: false,
+      tipoCobro: 'sena',
+      montoSena: 5000,
+      pagoObligatorio: true,
+    },
     textos: {
       bienvenida: 'Reservá tu turno en pocos pasos.',
     },

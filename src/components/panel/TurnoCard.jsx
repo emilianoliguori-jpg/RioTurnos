@@ -1,36 +1,53 @@
 // Card de un turno en la agenda del dueño.
 // Muestra info + acciones según el estado.
 // La confirmación de cancelado y el form de reagendado los maneja el padre
-// (SeccionAgenda) mediante flags + callbacks — esta card es presentacional
-// salvo por el botón inicial de cada acción.
+// (SeccionAgenda) — esta card es presentacional salvo por las acciones.
+
+import { formatearPrecio } from '../../lib/formato'
 
 export default function TurnoCard({
   turno,
-  confirmandoCancelar,
-  onPedirCancelar,
-  onConfirmarCancelar,
-  onAbortarCancelar,
+  mostrarFecha = false, // true en la vista cross-day de pendientes
+  confirmandoNegativa,
+  onPedirNegativa,
+  onConfirmarNegativa,
+  onAbortarNegativa,
   onMarcarAtendido,
   onPedirReagendar,
+  onConfirmarPago,
 }) {
   const cancelado = turno.estado === 'cancelado'
   const atendido  = turno.estado === 'atendido'
+  const pendiente = turno.estado === 'pendiente_pago'
+
+  // Texto del flujo de cancelación: "Cancelar" para confirmados, "Rechazar"
+  // para pendientes_pago (no pagaron / no enviaron comprobante).
+  const labelNegativa = pendiente ? 'Rechazar' : 'Cancelar'
+  const preguntaNegativa = pendiente ? '¿Rechazar este turno?' : '¿Cancelar este turno?'
+  const confirmarLabelNegativa = pendiente ? 'Sí, rechazar' : 'Sí, cancelar'
 
   return (
     <article
       className={`rounded-2xl border bg-white p-5 transition ${
-        cancelado ? 'border-ink/10 opacity-60' : 'border-ink/10'
+        cancelado ? 'border-ink/10 opacity-60' : pendiente ? 'border-copper/40' : 'border-ink/10'
       }`}
     >
-      {/* Hora + estado */}
+      {/* Hora (+ fecha si aplica) + estado */}
       <div className="flex items-start justify-between gap-4">
-        <p
-          className={`font-serif text-2xl font-light leading-none ${
-            cancelado ? 'line-through text-ink/50' : 'text-ink'
-          }`}
-        >
-          {turno.hora}
-        </p>
+        <div>
+          {mostrarFecha && (
+            <p className="font-sans text-ink/50 text-xs uppercase tracking-wider">
+              {turno.fecha}
+            </p>
+          )}
+          <p
+            className={`font-serif text-2xl font-light leading-none ${
+              cancelado ? 'line-through text-ink/50' : 'text-ink'
+            }`}
+          >
+            {turno.hora}
+          </p>
+        </div>
         <BadgeEstado estado={turno.estado} />
       </div>
 
@@ -49,6 +66,16 @@ export default function TurnoCard({
         </p>
       </div>
 
+      {/* Monto a cobrar / cobrado */}
+      {turno.montoCobrado != null && (
+        <p className="font-sans text-ink/70 text-sm mt-2">
+          <span className="text-ink/50">
+            {turno.tipoCobroAplicado === 'total' ? 'Total' : 'Seña'}:
+          </span>{' '}
+          <span className="font-medium">{formatearPrecio(turno.montoCobrado)}</span>
+        </p>
+      )}
+
       {/* Contacto */}
       {(turno.datosCliente?.whatsapp || turno.datosCliente?.email) && (
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-sans text-ink/60 text-xs">
@@ -61,22 +88,22 @@ export default function TurnoCard({
         </div>
       )}
 
-      {/* Acciones */}
+      {/* Acciones — escondidas para cancelados y atendidos */}
       {!cancelado && !atendido && (
         <div className="mt-4">
-          {confirmandoCancelar ? (
+          {confirmandoNegativa ? (
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-sans text-sm text-ink">¿Cancelar este turno?</span>
+              <span className="font-sans text-sm text-ink">{preguntaNegativa}</span>
               <button
                 type="button"
-                onClick={onConfirmarCancelar}
+                onClick={onConfirmarNegativa}
                 className="rounded-full bg-copper text-paper px-4 py-1.5 font-sans text-sm hover:opacity-90"
               >
-                Sí, cancelar
+                {confirmarLabelNegativa}
               </button>
               <button
                 type="button"
-                onClick={onAbortarCancelar}
+                onClick={onAbortarNegativa}
                 className="rounded-full border border-ink/15 px-4 py-1.5 font-sans text-sm text-ink hover:bg-ink/5"
               >
                 No
@@ -84,13 +111,23 @@ export default function TurnoCard({
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={onMarcarAtendido}
-                className="rounded-full bg-teal text-paper px-4 py-1.5 font-sans text-sm hover:opacity-90"
-              >
-                Marcar atendido
-              </button>
+              {pendiente ? (
+                <button
+                  type="button"
+                  onClick={onConfirmarPago}
+                  className="rounded-full bg-teal text-paper px-4 py-1.5 font-sans text-sm hover:opacity-90"
+                >
+                  Confirmar pago
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onMarcarAtendido}
+                  className="rounded-full bg-teal text-paper px-4 py-1.5 font-sans text-sm hover:opacity-90"
+                >
+                  Marcar atendido
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onPedirReagendar}
@@ -100,10 +137,10 @@ export default function TurnoCard({
               </button>
               <button
                 type="button"
-                onClick={onPedirCancelar}
+                onClick={onPedirNegativa}
                 className="rounded-full border border-ink/15 px-4 py-1.5 font-sans text-sm text-ink/70 hover:bg-ink/5"
               >
-                Cancelar
+                {labelNegativa}
               </button>
             </div>
           )}
@@ -115,13 +152,14 @@ export default function TurnoCard({
 
 function BadgeEstado({ estado }) {
   const config = {
-    confirmado: { label: 'Confirmado', bg: 'bg-ink/10',    fg: 'text-ink/70'  },
-    atendido:   { label: 'Atendido',   bg: 'bg-teal/15',   fg: 'text-teal'    },
-    cancelado:  { label: 'Cancelado',  bg: 'bg-copper/15', fg: 'text-copper'  },
+    confirmado:     { label: 'Confirmado',       bg: 'bg-ink/10',    fg: 'text-ink/70'  },
+    pendiente_pago: { label: 'Pendiente de pago', bg: 'bg-copper/15', fg: 'text-copper'  },
+    atendido:       { label: 'Atendido',         bg: 'bg-teal/15',   fg: 'text-teal'    },
+    cancelado:      { label: 'Cancelado',        bg: 'bg-copper/15', fg: 'text-copper'  },
   }
   const c = config[estado] || config.confirmado
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider font-sans ${c.bg} ${c.fg}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider font-sans whitespace-nowrap ${c.bg} ${c.fg}`}>
       {c.label}
     </span>
   )

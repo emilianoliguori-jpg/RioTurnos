@@ -32,10 +32,11 @@ Documento = un negocio.
 | slug             | string   | "estudio-bilardo"          | Identificador URL (`/estudio-bilardo`). Único, lowercase, sin espacios |
 | rubro            | string   | "peluqueria"               | Key de `RUBROS` en `src/lib/rubros.js` |
 | direccion        | string   | "Mitre 1234, Rosario"      | Mostrada al cliente en la confirmación |
-| telefono         | string   | "+5493411234567"           | Contacto |
+| telefono         | string   | "+5493411234567"           | Contacto (formato internacional para WhatsApp) |
 | colorAcento      | string   | "#0B6E6E"                  | Hex del color de marca del negocio. Aplica a botones y destacados del flujo |
 | logoUrl          | string   | "https://..."              | URL del logo (opcional) |
-| aliasPago        | string   | "estudio.bilardo.mp"       | Alias para pagos (se usa en otra etapa) |
+| aliasPago        | string   | "estudio.bilardo.mp"       | Alias bancario / MP para que el cliente transfiera. Requerido si `cobro.activado = true`. |
+| cobro            | map      | ver abajo                  | Configuración del cobro al reservar (manual por transferencia) |
 | textos           | map      | `{ bienvenida: "..." }`    | Textos personalizables del negocio. Cualquier texto que no esté acá cae al default del rubro |
 | horariosAtencion | map      | ver abajo                  | Horario por día de la semana |
 | creadoEn         | timestamp| serverTimestamp()          | Fecha de alta del negocio |
@@ -61,6 +62,18 @@ descanso al mediodía). Si `abierto = false`, `franjas` se ignora.
 > viejo `{ abre, cierra, cerrado }` y lo migra al vuelo, para que negocios
 > pre-existentes sigan funcionando hasta que su dueño guarde los horarios
 > desde el panel.
+
+### `cobro` (map)
+
+| Campo            | Tipo    | Ejemplo  | Descripción |
+|------------------|---------|----------|-------------|
+| activado         | boolean | `true`   | Si el negocio cobra al reservar |
+| tipoCobro        | string  | "sena"   | `"sena"` (parcial fija) o `"total"` (el precio del servicio) |
+| montoSena        | number  | `5000`   | En pesos. Sólo se usa si `tipoCobro === "sena"` |
+| pagoObligatorio  | boolean | `true`   | Si es `false`, el cliente puede elegir "pagar en el local" y reservar sin transferir |
+
+Si `activado = false`, el resto de los campos se ignoran y el flujo público
+de reserva no pide pago (se crea el turno como `"confirmado"`).
 
 ---
 
@@ -91,16 +104,28 @@ pero podría ser una sala/box en otros rubros.
 
 | Campo          | Tipo      | Ejemplo                                   |
 |----------------|-----------|-------------------------------------------|
-| servicioId     | string    | "abc123" (id del doc en `/servicios`)     |
-| servicioNombre | string    | "Corte mujer" (denormalizado para listar) |
-| profesionalId  | string    | "xyz789"                                  |
-| profesionalNombre | string | "Lucía"                                   |
-| fecha          | string    | "2026-05-30" (YYYY-MM-DD, local)          |
-| hora           | string    | "14:30" (HH:MM, hora local del negocio)   |
-| duracionMinutos| number    | 60 (copiada del servicio al crear)        |
-| estado         | string    | "pendiente" \| "confirmado" \| "cancelado"|
-| datosCliente   | map       | `{ nombre, whatsapp, email }`             |
-| creadoEn       | timestamp | serverTimestamp()                         |
+| servicioId            | string    | "abc123" (id del doc en `/servicios`)     |
+| servicioNombre        | string    | "Corte mujer" (denormalizado para listar) |
+| profesionalId         | string    | "xyz789"                                  |
+| profesionalNombre     | string    | "Lucía"                                   |
+| fecha                 | string    | "2026-05-30" (YYYY-MM-DD, local)          |
+| hora                  | string    | "14:30" (HH:MM, hora local del negocio)   |
+| duracionMinutos       | number    | 60 (copiada del servicio al crear)        |
+| estado                | string    | ver "Estados del turno" abajo             |
+| datosCliente          | map       | `{ nombre, whatsapp, email }`             |
+| montoCobrado          | number    | 5000 — sólo si el cliente debía pagar por transferencia |
+| tipoCobroAplicado     | string    | `"sena"` \| `"total"` — sólo junto a `montoCobrado` |
+| fechaConfirmacionPago | timestamp | cuando el dueño confirma el pago desde el panel |
+| creadoEn              | timestamp | serverTimestamp()                         |
+
+### Estados del turno
+
+| Estado            | Quién lo setea          | Bloquea el slot? | Descripción |
+|-------------------|-------------------------|------------------|-------------|
+| `confirmado`      | flujo público / panel    | Sí               | Reserva firme. Sin cobro pendiente. |
+| `pendiente_pago`  | flujo público (transferencia) | **Sí**     | El cliente reservó, dice que transfirió, falta que el dueño verifique el comprobante. **Ocupa el horario igual** para que nadie más lo tome. |
+| `atendido`        | panel (botón "Marcar atendido") | Sí       | El servicio ya se prestó. Cierra el ciclo. |
+| `cancelado`       | flujo público / panel    | No               | Cancelado por el cliente o por el dueño (también se usa para "rechazar pago"). Libera el slot. |
 
 **Por qué `fecha` y `hora` son strings** (en vez de un Timestamp): evita
 problemas de zona horaria del navegador del cliente vs el negocio. La agenda

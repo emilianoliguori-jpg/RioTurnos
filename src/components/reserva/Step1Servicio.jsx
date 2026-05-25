@@ -2,14 +2,7 @@
 // El título viene del diccionario de rubro del negocio.
 
 import StepHeader from './StepHeader'
-
-function formatearPrecio(precio) {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(precio)
-}
+import { formatearPrecio } from '../../lib/formato'
 
 export default function Step1Servicio({ pregunta, servicios, onElegir, colorAcento }) {
   return (

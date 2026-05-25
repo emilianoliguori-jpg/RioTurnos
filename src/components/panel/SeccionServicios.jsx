@@ -16,6 +16,7 @@ import {
 } from '../../services/servicios'
 import { getRubro } from '../../lib/rubros'
 import ServicioForm from './ServicioForm'
+import { formatearPrecio } from '../../lib/formato'
 
 export default function SeccionServicios({ negocio }) {
   const rubro = getRubro(negocio.rubro)
@@ -179,14 +180,6 @@ function FilaServicio({
       )}
     </article>
   )
-}
-
-function formatearPrecio(precio) {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(precio || 0)
 }
 
 function capitalizar(s) {

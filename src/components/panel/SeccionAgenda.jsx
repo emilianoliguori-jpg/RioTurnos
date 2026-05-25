@@ -1,22 +1,20 @@
 // Sección Agenda del panel.
-// Lista los turnos de un día, los gestiona (atendido/reagendar/cancelar) y
-// permite alta manual.
-//
-// Estructura del estado:
-//   fechaStr               día visible (YYYY-MM-DD)
-//   turnos                 cargados para ese día (incluye cancelados)
-//   creandoManual          bool — mostramos el form de alta
-//   reagendandoId          turnoId | null — mostramos el form de reagendado en esa card
-//   confirmandoCancelarId  turnoId | null — la card pregunta "¿cancelar?"
+// Tiene 2 vistas:
+//   - 'dia': turnos del día seleccionado (vista por defecto).
+//   - 'pendientes': todos los pendiente_pago del negocio, ordenados cronológicamente.
+// Permite: alta manual, marcar atendido, reagendar, cancelar, confirmar pago,
+// rechazar (los dos últimos sólo en pendientes_pago).
 
 import { useEffect, useState } from 'react'
 import { formatearFecha } from '../../lib/fechas'
 import { getRubro } from '../../lib/rubros'
 import {
   getTurnosDelDia,
+  getTurnosPendientesDePago,
   crearTurno,
   actualizarEstadoTurno,
   actualizarTurno,
+  confirmarPagoTurno,
 } from '../../services/turnos'
 import { getServicios } from '../../services/servicios'
 import { getProfesionales } from '../../services/profesionales'
@@ -31,6 +29,7 @@ export default function SeccionAgenda({ negocio }) {
   const rubro = getRubro(negocio.rubro)
   const colorAcento = negocio.colorAcento || '#0B6E6E'
 
+  const [vista, setVista] = useState('dia') // 'dia' | 'pendientes'
   const [fechaStr, setFechaStr] = useState(() => formatearFecha(new Date()))
   const [turnos, setTurnos] = useState(null) // null = cargando
   const [servicios, setServicios] = useState([])
@@ -38,10 +37,9 @@ export default function SeccionAgenda({ negocio }) {
 
   const [creandoManual, setCreandoManual] = useState(false)
   const [reagendandoId, setReagendandoId] = useState(null)
-  const [confirmandoCancelarId, setConfirmandoCancelarId] = useState(null)
+  const [confirmandoNegativaId, setConfirmandoNegativaId] = useState(null)
 
-  // Carga catálogos (servicios + profesionales) una sola vez para usarlos
-  // en los selectores del form manual.
+  // Carga catálogos una sola vez (servicios + profesionales para el form manual).
   useEffect(() => {
     let cancelado = false
     async function cargar() {
@@ -58,29 +56,32 @@ export default function SeccionAgenda({ negocio }) {
   }, [negocio.id])
 
   async function recargar() {
-    const items = await getTurnosDelDia(negocio.id, fechaStr, {
-      incluirCancelados: true,
-    })
-    items.sort((a, b) => (a.hora || '').localeCompare(b.hora || ''))
-    setTurnos(items)
+    if (vista === 'pendientes') {
+      const items = await getTurnosPendientesDePago(negocio.id)
+      setTurnos(items)
+    } else {
+      const items = await getTurnosDelDia(negocio.id, fechaStr, {
+        incluirCancelados: true,
+      })
+      items.sort((a, b) => (a.hora || '').localeCompare(b.hora || ''))
+      setTurnos(items)
+    }
   }
 
   useEffect(() => {
     setTurnos(null)
     recargar()
-    // Salgo de cualquier modo de edición al cambiar de día.
     setReagendandoId(null)
-    setConfirmandoCancelarId(null)
+    setConfirmandoNegativaId(null)
     setCreandoManual(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [negocio.id, fechaStr])
+  }, [negocio.id, fechaStr, vista])
 
   // --- Handlers ---
   async function crearManual(payload) {
     const id = await crearTurno(negocio.id, payload)
     setCreandoManual(false)
-    // Si el turno creado cae en otro día, saltamos a ese día.
-    if (payload.fecha !== fechaStr) {
+    if (payload.fecha !== fechaStr && vista === 'dia') {
       setFechaStr(payload.fecha)
     } else {
       await recargar()
@@ -91,7 +92,7 @@ export default function SeccionAgenda({ negocio }) {
   async function reagendar(turnoId, { fecha, hora }) {
     await actualizarTurno(negocio.id, turnoId, { fecha, hora })
     setReagendandoId(null)
-    if (fecha !== fechaStr) {
+    if (vista === 'dia' && fecha !== fechaStr) {
       setFechaStr(fecha)
     } else {
       await recargar()
@@ -103,44 +104,82 @@ export default function SeccionAgenda({ negocio }) {
     await recargar()
   }
 
-  async function cancelar(turnoId) {
+  async function aplicarNegativa(turnoId) {
+    // Tanto "Cancelar" como "Rechazar" terminan en estado=cancelado: el slot
+    // se libera. La diferencia es semántica (rechazar = el cliente no pagó).
     await actualizarEstadoTurno(negocio.id, turnoId, 'cancelado')
-    setConfirmandoCancelarId(null)
+    setConfirmandoNegativaId(null)
+    await recargar()
+  }
+
+  async function aprobarPago(turnoId) {
+    await confirmarPagoTurno(negocio.id, turnoId)
     await recargar()
   }
 
   // --- Render ---
   return (
     <div className="space-y-5">
-      <SelectorDia valor={fechaStr} onCambiar={setFechaStr} />
+      {/* Selector de vista */}
+      <div className="inline-flex rounded-full border border-ink/15 bg-white p-1">
+        <BotonVista
+          activo={vista === 'dia'}
+          onClick={() => setVista('dia')}
+          colorAcento={colorAcento}
+        >
+          Día
+        </BotonVista>
+        <BotonVista
+          activo={vista === 'pendientes'}
+          onClick={() => setVista('pendientes')}
+          colorAcento={colorAcento}
+        >
+          Pendientes de pago
+        </BotonVista>
+      </div>
 
-      <MetricasDia turnos={turnos || []} colorAcento={colorAcento} />
+      {vista === 'dia' && (
+        <>
+          <SelectorDia valor={fechaStr} onCambiar={setFechaStr} />
+          <MetricasDia turnos={turnos || []} colorAcento={colorAcento} />
 
-      {/* Acción cargar turno manual */}
-      {!creandoManual && (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => setCreandoManual(true)}
-            className="rounded-full bg-teal text-paper px-4 py-2 font-sans text-sm font-medium hover:opacity-90"
-          >
-            + Cargar turno manual
-          </button>
-        </div>
+          {!creandoManual && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setCreandoManual(true)}
+                className="rounded-full bg-teal text-paper px-4 py-2 font-sans text-sm font-medium hover:opacity-90"
+              >
+                + Cargar turno manual
+              </button>
+            </div>
+          )}
+
+          {creandoManual && (
+            <TurnoFormManual
+              negocio={negocio}
+              servicios={servicios}
+              profesionales={profesionales}
+              fechaInicial={fechaStr}
+              onCrear={crearManual}
+              onCancelar={() => setCreandoManual(false)}
+              colorAcento={colorAcento}
+              etiquetaServicio={rubro.servicioSingular}
+              etiquetaProfesional={rubro.profesionalSingular}
+            />
+          )}
+        </>
       )}
 
-      {creandoManual && (
-        <TurnoFormManual
-          negocio={negocio}
-          servicios={servicios}
-          profesionales={profesionales}
-          fechaInicial={fechaStr}
-          onCrear={crearManual}
-          onCancelar={() => setCreandoManual(false)}
-          colorAcento={colorAcento}
-          etiquetaServicio={rubro.servicioSingular}
-          etiquetaProfesional={rubro.profesionalSingular}
-        />
+      {vista === 'pendientes' && (
+        <div className="rounded-2xl border border-ink/10 bg-white p-4">
+          <p className="font-serif text-lg text-ink font-light">
+            Pendientes de pago
+          </p>
+          <p className="font-sans text-ink/50 text-xs mt-1">
+            Todos los turnos que esperan tu confirmación, en orden cronológico.
+          </p>
+        </div>
       )}
 
       {/* Lista de turnos */}
@@ -149,10 +188,12 @@ export default function SeccionAgenda({ negocio }) {
       ) : turnos.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-ink/15 bg-white p-10 text-center">
           <p className="font-serif text-xl text-ink font-light">
-            No hay turnos este día.
+            {vista === 'pendientes' ? 'No hay pagos pendientes.' : 'No hay turnos este día.'}
           </p>
           <p className="font-sans text-ink/50 text-sm mt-2">
-            Tocá "+ Cargar turno manual" para sumar uno, o esperá reservas online.
+            {vista === 'pendientes'
+              ? 'Cuando un cliente reserve con pago, va a aparecer acá.'
+              : 'Tocá "+ Cargar turno manual" para sumar uno, o esperá reservas online.'}
           </p>
         </div>
       ) : (
@@ -171,17 +212,36 @@ export default function SeccionAgenda({ negocio }) {
               <TurnoCard
                 key={t.id}
                 turno={t}
-                confirmandoCancelar={confirmandoCancelarId === t.id}
-                onPedirCancelar={() => setConfirmandoCancelarId(t.id)}
-                onConfirmarCancelar={() => cancelar(t.id)}
-                onAbortarCancelar={() => setConfirmandoCancelarId(null)}
+                mostrarFecha={vista === 'pendientes'}
+                confirmandoNegativa={confirmandoNegativaId === t.id}
+                onPedirNegativa={() => setConfirmandoNegativaId(t.id)}
+                onConfirmarNegativa={() => aplicarNegativa(t.id)}
+                onAbortarNegativa={() => setConfirmandoNegativaId(null)}
                 onMarcarAtendido={() => marcarAtendido(t.id)}
                 onPedirReagendar={() => setReagendandoId(t.id)}
+                onConfirmarPago={() => aprobarPago(t.id)}
               />
             )
           )}
         </div>
       )}
     </div>
+  )
+}
+
+function BotonVista({ activo, onClick, children, colorAcento }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-full px-4 py-1.5 font-sans text-sm transition"
+      style={
+        activo
+          ? { backgroundColor: colorAcento, color: '#F5F1EA' }
+          : { backgroundColor: 'transparent', color: '#0F1419' }
+      }
+    >
+      {children}
+    </button>
   )
 }

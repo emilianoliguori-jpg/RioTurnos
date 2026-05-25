@@ -36,13 +36,43 @@ export async function getTurnosDelDia(
 
 // Crea un turno y devuelve su id.
 // Se usa tanto en el flujo público como en alta manual del panel.
+// `estado` se puede sobreescribir desde `turno` (ej: "pendiente_pago" si el
+// flujo público activó cobro por transferencia).
 export async function crearTurno(negocioId, turno) {
   const docRef = await addDoc(colRef(negocioId), {
-    ...turno,
-    estado: 'confirmado',
+    estado: 'confirmado', // default
+    ...turno,             // puede sobreescribir
     creadoEn: serverTimestamp(),
   })
   return docRef.id
+}
+
+// Confirma el pago de un turno pendiente desde el panel.
+// Cambia estado a "confirmado" y guarda la marca temporal.
+export async function confirmarPagoTurno(negocioId, turnoId) {
+  await updateDoc(doc(colRef(negocioId), turnoId), {
+    estado: 'confirmado',
+    fechaConfirmacionPago: serverTimestamp(),
+  })
+}
+
+// Lista todos los turnos en estado pendiente_pago del negocio.
+// Útil para la vista cross-day del cruce diario del dueño.
+// Filtra a partir de la fecha de hoy (no muestra pendientes vencidos).
+export async function getTurnosPendientesDePago(negocioId) {
+  const q = query(
+    colRef(negocioId),
+    where('estado', '==', 'pendiente_pago')
+  )
+  const snap = await getDocs(q)
+  const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  // Ordenamos cronológicamente.
+  items.sort((a, b) => {
+    const k = (a.fecha || '').localeCompare(b.fecha || '')
+    if (k !== 0) return k
+    return (a.hora || '').localeCompare(b.hora || '')
+  })
+  return items
 }
 
 // Cambia el estado de un turno: 'confirmado' | 'atendido' | 'cancelado'.

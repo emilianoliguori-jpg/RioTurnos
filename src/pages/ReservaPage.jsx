@@ -1,10 +1,14 @@
 // Página pública del flujo de reserva — /:slug
-// Es la orquestadora: carga datos del negocio, mantiene el estado del flujo
-// (paso actual + elecciones del usuario), y monta el step correspondiente.
+// Orquesta los pasos. Si el negocio tiene cobro activado, intercala un paso
+// de pago entre los datos del cliente y la confirmación.
 //
-// Los textos de los pasos 1 y 2 salen del diccionario de rubro del negocio.
-// El color de acento sale del campo colorAcento del negocio.
-// Nada está hardcodeado.
+// Flujo de pasos:
+//   1. servicio
+//   2. profesional
+//   3. fecha+hora
+//   4. datos cliente
+//   5. PAGO (solo si cobro activado)
+//   6. confirmación (5 si no hay cobro)
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -20,12 +24,13 @@ import Step1Servicio from '../components/reserva/Step1Servicio'
 import Step2Profesional from '../components/reserva/Step2Profesional'
 import Step3Fecha from '../components/reserva/Step3Fecha'
 import Step4Datos from '../components/reserva/Step4Datos'
+import StepPago from '../components/reserva/StepPago'
 import Step5Confirmacion from '../components/reserva/Step5Confirmacion'
 
 export default function ReservaPage() {
   const { slug } = useParams()
 
-  const [estado, setEstado] = useState({
+  const [estadoCarga, setEstadoCarga] = useState({
     cargando: true,
     error: null,
     negocio: null,
@@ -38,6 +43,7 @@ export default function ReservaPage() {
   const [servicio, setServicio] = useState(null)
   const [profesional, setProfesional] = useState(null)
   const [horario, setHorario] = useState(null) // { fecha, hora }
+  const [datosCliente, setDatosCliente] = useState(null)
   const [resumenFinal, setResumenFinal] = useState(null)
   const [enviando, setEnviando] = useState(false)
 
@@ -47,32 +53,32 @@ export default function ReservaPage() {
       try {
         const negocio = await getNegocioPorSlug(slug)
         if (!negocio) {
-          setEstado((e) => ({ ...e, cargando: false, error: 'no-encontrado' }))
+          setEstadoCarga((e) => ({ ...e, cargando: false, error: 'no-encontrado' }))
           return
         }
         const [servicios, profesionales] = await Promise.all([
           getServicios(negocio.id),
           getProfesionales(negocio.id),
         ])
-        setEstado({ cargando: false, error: null, negocio, servicios, profesionales })
+        setEstadoCarga({ cargando: false, error: null, negocio, servicios, profesionales })
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error(err)
-        setEstado((e) => ({ ...e, cargando: false, error: 'firestore' }))
+        setEstadoCarga((e) => ({ ...e, cargando: false, error: 'firestore' }))
       }
     }
     cargar()
   }, [slug])
 
   // --- Estados de error y carga ---
-  if (estado.cargando) {
+  if (estadoCarga.cargando) {
     return (
       <Layout>
         <p className="font-sans text-ink/60 text-sm">Cargando…</p>
       </Layout>
     )
   }
-  if (estado.error === 'no-encontrado') {
+  if (estadoCarga.error === 'no-encontrado') {
     return (
       <Layout>
         <p className="font-serif text-2xl text-ink">No encontramos este negocio.</p>
@@ -82,7 +88,7 @@ export default function ReservaPage() {
       </Layout>
     )
   }
-  if (estado.error) {
+  if (estadoCarga.error) {
     return (
       <Layout>
         <p className="font-serif text-2xl text-ink">Algo salió mal.</p>
@@ -93,9 +99,23 @@ export default function ReservaPage() {
     )
   }
 
-  const { negocio, servicios, profesionales } = estado
+  const { negocio, servicios, profesionales } = estadoCarga
   const rubro = getRubro(negocio.rubro)
   const colorAcento = negocio.colorAcento || '#0B6E6E'
+
+  // Flags de cobro
+  const cobroActivado = !!negocio.cobro?.activado && !!negocio.aliasPago
+  const tipoCobro = negocio.cobro?.tipoCobro || 'sena'
+  const pagoObligatorio = !!negocio.cobro?.pagoObligatorio
+  const totalPasos = cobroActivado ? 6 : 5
+  const pasoConfirmacion = cobroActivado ? 6 : 5
+
+  // Monto a cobrar (sólo si cobroActivado)
+  function montoACobrar() {
+    if (!cobroActivado || !servicio) return null
+    if (tipoCobro === 'total') return Number(servicio.precio) || 0
+    return Number(negocio.cobro?.montoSena) || 0
+  }
 
   // --- Handlers de avance de pasos ---
   function elegirServicio(s) {
@@ -111,13 +131,29 @@ export default function ReservaPage() {
     setPaso(4)
   }
 
-  async function confirmar(datosCliente) {
+  // Step 4 → si hay cobro, ir a paso pago; si no, crear y confirmar directo.
+  async function alSubmitDatos(datos) {
+    setDatosCliente(datos)
+    if (cobroActivado) {
+      setPaso(5)
+    } else {
+      await crearYAvanzar(datos, 'confirmado')
+    }
+  }
+
+  // Step pago — usuario apretó "Ya transferí"
+  async function alConfirmarTransferencia() {
+    await crearYAvanzar(datosCliente, 'pendiente_pago')
+  }
+
+  // Step pago — usuario apretó "Pagar en el local" (solo si !pagoObligatorio)
+  async function alPagarEnLocal() {
+    await crearYAvanzar(datosCliente, 'confirmado')
+  }
+
+  async function crearYAvanzar(datos, estadoNuevo) {
     setEnviando(true)
     try {
-      // Si eligió "cualquiera", asignamos el primer profesional activo.
-      // (Versión simple. En el futuro podríamos elegir el que tenga el slot
-      // libre exactamente; por ahora alcanza con el primero, dado que el
-      // Step3 ya filtró por disponibilidad real.)
       const profAsignado = profesional.id
         ? profesional
         : profesionales[0] || { id: null, nombre: '' }
@@ -130,11 +166,21 @@ export default function ReservaPage() {
         fecha: horario.fecha,
         hora: horario.hora,
         duracionMinutos: servicio.duracionMinutos,
-        datosCliente,
+        datosCliente: datos,
+        estado: estadoNuevo,
       }
+
+      // Si pasó por el flujo de pago por transferencia, sumamos los campos
+      // del cobro. Si eligió pago en el local, el monto se cobra después
+      // en persona — no lo registramos acá.
+      if (estadoNuevo === 'pendiente_pago') {
+        turno.montoCobrado = montoACobrar()
+        turno.tipoCobroAplicado = tipoCobro
+      }
+
       await crearTurno(negocio.id, turno)
       setResumenFinal(turno)
-      setPaso(5)
+      setPaso(pasoConfirmacion)
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err)
@@ -155,7 +201,7 @@ export default function ReservaPage() {
             {negocio.textos.bienvenida}
           </p>
         )}
-        <StepProgress paso={paso} total={5} colorAcento={colorAcento} />
+        <StepProgress paso={paso} total={totalPasos} colorAcento={colorAcento} />
       </div>
 
       {paso === 1 && (
@@ -186,12 +232,27 @@ export default function ReservaPage() {
       )}
       {paso === 4 && (
         <Step4Datos
-          onConfirmar={confirmar}
+          onConfirmar={alSubmitDatos}
           colorAcento={colorAcento}
-          enviando={enviando}
+          enviando={enviando && !cobroActivado}
+          etiquetaBoton={cobroActivado ? 'Continuar al pago' : 'Confirmar turno'}
         />
       )}
-      {paso === 5 && resumenFinal && (
+      {cobroActivado && paso === 5 && (
+        <StepPago
+          negocio={negocio}
+          servicio={servicio}
+          horario={horario}
+          monto={montoACobrar()}
+          tipoCobro={tipoCobro}
+          pagoObligatorio={pagoObligatorio}
+          colorAcento={colorAcento}
+          enviando={enviando}
+          onConfirmarTransferencia={alConfirmarTransferencia}
+          onPagarEnLocal={alPagarEnLocal}
+        />
+      )}
+      {paso === pasoConfirmacion && resumenFinal && (
         <Step5Confirmacion
           negocio={negocio}
           resumen={resumenFinal}

@@ -1,9 +1,9 @@
 // Sección Configuración del panel.
 // Edita los datos del negocio: nombre, dirección, contacto, rubro, color,
-// alias de pago, texto de bienvenida, logo URL.
+// alias de pago + config de cobro, texto de bienvenida, logo URL.
 //
 // Hace UPDATE PARCIAL en Firestore — los campos no presentes (como
-// horariosAtencion, que se edita en otra pestaña) quedan intactos.
+// horariosAtencion) quedan intactos.
 
 import { useState } from 'react'
 import { actualizarNegocio } from '../../services/negocios'
@@ -11,9 +11,16 @@ import { RUBROS } from '../../lib/rubros'
 
 import CampoTexto from './CampoTexto'
 import SelectorColor from './SelectorColor'
+import ConfigCobro from './ConfigCobro'
+
+const COBRO_DEFAULT = {
+  activado: false,
+  tipoCobro: 'sena',
+  montoSena: 5000,
+  pagoObligatorio: true,
+}
 
 export default function SeccionConfiguracion({ negocio, onNegocioActualizado }) {
-  // Estado del formulario inicializado con lo que vino de Firestore.
   const [form, setForm] = useState({
     nombre:       negocio.nombre || '',
     direccion:    negocio.direccion || '',
@@ -23,19 +30,27 @@ export default function SeccionConfiguracion({ negocio, onNegocioActualizado }) 
     aliasPago:    negocio.aliasPago || '',
     logoUrl:      negocio.logoUrl || '',
     textoBienvenida: negocio.textos?.bienvenida || '',
+    cobro:        { ...COBRO_DEFAULT, ...(negocio.cobro || {}) },
   })
-  const [estado, setEstado] = useState('idle') // 'idle' | 'guardando' | 'guardado' | 'error'
+  const [estado, setEstado] = useState('idle')
 
   const nombreVacio = form.nombre.trim().length === 0
+  const cobroSinAlias = form.cobro.activado && form.aliasPago.trim().length === 0
+  const valido = !nombreVacio && !cobroSinAlias
 
   function set(campo, valor) {
     setForm((f) => ({ ...f, [campo]: valor }))
     if (estado === 'guardado' || estado === 'error') setEstado('idle')
   }
 
+  function setCobroParcial(parciales) {
+    setForm((f) => ({ ...f, cobro: { ...f.cobro, ...parciales } }))
+    if (estado === 'guardado' || estado === 'error') setEstado('idle')
+  }
+
   async function guardar(e) {
     e.preventDefault()
-    if (nombreVacio || estado === 'guardando') return
+    if (!valido || estado === 'guardando') return
     setEstado('guardando')
     try {
       const parciales = {
@@ -46,6 +61,7 @@ export default function SeccionConfiguracion({ negocio, onNegocioActualizado }) 
         colorAcento: form.colorAcento,
         aliasPago:   form.aliasPago.trim(),
         logoUrl:     form.logoUrl.trim(),
+        cobro:       form.cobro,
         textos: {
           ...(negocio.textos || {}),
           bienvenida: form.textoBienvenida.trim(),
@@ -54,7 +70,6 @@ export default function SeccionConfiguracion({ negocio, onNegocioActualizado }) 
       await actualizarNegocio(negocio.id, parciales)
       onNegocioActualizado?.(parciales)
       setEstado('guardado')
-      // Limpia el mensaje a los 2.5 segundos.
       setTimeout(() => {
         setEstado((s) => (s === 'guardado' ? 'idle' : s))
       }, 2500)
@@ -86,6 +101,7 @@ export default function SeccionConfiguracion({ negocio, onNegocioActualizado }) 
           value={form.telefono}
           onChange={(v) => set('telefono', v)}
           placeholder="+5493411234567"
+          hint="Formato internacional (con +54...) para que el link de WhatsApp funcione."
         />
 
         <label className="block">
@@ -139,21 +155,19 @@ export default function SeccionConfiguracion({ negocio, onNegocioActualizado }) 
         </label>
       </Tarjeta>
 
-      <Tarjeta titulo="Pagos">
-        <CampoTexto
-          label="Alias de pago"
-          value={form.aliasPago}
-          onChange={(v) => set('aliasPago', v)}
-          placeholder="tu.alias.mp"
-          hint="Lo usamos cuando sumemos seña / pago en el flujo de reserva."
-        />
-      </Tarjeta>
+      <ConfigCobro
+        cobro={form.cobro}
+        aliasPago={form.aliasPago}
+        onCambiarCobro={setCobroParcial}
+        onCambiarAlias={(v) => set('aliasPago', v)}
+        errorAlias={cobroSinAlias ? 'Tenés que cargar el alias para activar el cobro.' : null}
+      />
 
       {/* Acciones */}
       <div className="flex items-center gap-4 pt-2">
         <button
           type="submit"
-          disabled={nombreVacio || estado === 'guardando'}
+          disabled={!valido || estado === 'guardando'}
           className="rounded-full bg-teal text-paper px-6 py-3 font-sans text-sm font-medium hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {estado === 'guardando' ? 'Guardando…' : 'Guardar cambios'}
