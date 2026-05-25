@@ -42,10 +42,16 @@ function generarId() {
   return Math.random().toString(36).slice(2, 10)
 }
 
-// Sube un comprobante de suscripción al bucket. Devuelve { url, path }.
-// onProgreso recibe un número 0-100 mientras sube.
-export function subirComprobante(file, { onProgreso } = {}) {
-  const path = `comprobantes-suscripcion/${Date.now()}-${generarId()}-${sanitizarNombre(file.name)}`
+// Sube un comprobante al bucket. Devuelve { url, path }.
+//   onProgreso → callback que recibe un número 0-100 mientras sube.
+//   carpeta    → prefijo del path. Default: comprobantes-suscripcion.
+//                Pasá algo como "comprobantes-turnos/<slug>" para otros flujos.
+export function subirComprobante(
+  file,
+  { onProgreso, carpeta = 'comprobantes-suscripcion' } = {}
+) {
+  const carpetaNorm = String(carpeta).replace(/\/+$/, '')
+  const path = `${carpetaNorm}/${Date.now()}-${generarId()}-${sanitizarNombre(file.name)}`
   const refArchivo = ref(storage, path)
   const tarea = uploadBytesResumable(refArchivo, file, {
     contentType: file.type,

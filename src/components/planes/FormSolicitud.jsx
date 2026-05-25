@@ -11,7 +11,7 @@ import { slugExiste } from '../../services/negocios'
 import { crearSolicitud } from '../../services/solicitudes'
 
 import CampoTexto from '../panel/CampoTexto'
-import SubidorComprobante from './SubidorComprobante'
+import SubidorComprobante from '../comun/SubidorComprobante'
 
 export default function FormSolicitud({ plan, onVolver, onEnviada }) {
   const [form, setForm] = useState({

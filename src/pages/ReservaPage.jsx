@@ -142,8 +142,9 @@ export default function ReservaPage() {
   }
 
   // Step pago — usuario apretó "Ya transferí"
-  async function alConfirmarTransferencia() {
-    await crearYAvanzar(datosCliente, 'pendiente_pago')
+  // payload puede traer { urlComprobante } si subió comprobante en la app.
+  async function alConfirmarTransferencia({ urlComprobante } = {}) {
+    await crearYAvanzar(datosCliente, 'pendiente_pago', { urlComprobante })
   }
 
   // Step pago — usuario apretó "Pagar en el local" (solo si !pagoObligatorio)
@@ -151,7 +152,7 @@ export default function ReservaPage() {
     await crearYAvanzar(datosCliente, 'confirmado')
   }
 
-  async function crearYAvanzar(datos, estadoNuevo) {
+  async function crearYAvanzar(datos, estadoNuevo, extra = {}) {
     setEnviando(true)
     try {
       const profAsignado = profesional.id
@@ -176,6 +177,12 @@ export default function ReservaPage() {
       if (estadoNuevo === 'pendiente_pago') {
         turno.montoCobrado = montoACobrar()
         turno.tipoCobroAplicado = tipoCobro
+      }
+
+      // Comprobante (opcional): si el cliente lo subió en la app, lo
+      // guardamos. Si lo está mandando por WhatsApp, no escribimos el campo.
+      if (extra.urlComprobante) {
+        turno.urlComprobante = extra.urlComprobante
       }
 
       await crearTurno(negocio.id, turno)

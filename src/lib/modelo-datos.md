@@ -115,6 +115,7 @@ pero podría ser una sala/box en otros rubros.
 | datosCliente          | map       | `{ nombre, whatsapp, email }`             |
 | montoCobrado          | number    | 5000 — sólo si el cliente debía pagar por transferencia |
 | tipoCobroAplicado     | string    | `"sena"` \| `"total"` — sólo junto a `montoCobrado` |
+| urlComprobante        | string    | URL pública de Storage del comprobante subido por el cliente (opcional — puede haberlo mandado por WhatsApp en cambio) |
 | fechaConfirmacionPago | timestamp | cuando el dueño confirma el pago desde el panel |
 | creadoEn              | timestamp | serverTimestamp()                         |
 

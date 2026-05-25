@@ -1,26 +1,40 @@
 // Componente de subida de comprobante a Firebase Storage.
-// Auto-sube en cuanto el usuario elige archivo. Muestra progreso real,
+// Reusable en cualquier flujo: suscripción de plan, pago de turno, etc.
+// Auto-sube en cuanto el usuario elige archivo, muestra progreso real,
 // resultado y permite reemplazar.
 //
 // Props:
 //   onSubido({url, path}) — callback cuando termina. Llamado con null al quitar.
+//   onCambioEstado(estado) — opcional. Estado: 'idle' | 'subiendo' | 'listo' | 'error'.
+//                            Útil si el padre necesita deshabilitar otros botones
+//                            mientras hay subida en curso.
+//   carpeta — prefijo del path en Storage. Default: 'comprobantes-suscripcion'.
 
 import { useRef, useState } from 'react'
 import { subirComprobante, validarArchivo, TAMANO_MAX_BYTES } from '../../services/storage'
 
-export default function SubidorComprobante({ onSubido }) {
+export default function SubidorComprobante({
+  onSubido,
+  onCambioEstado,
+  carpeta,
+}) {
   const inputRef = useRef(null)
   const [archivo, setArchivo] = useState(null)
-  const [estado, setEstado] = useState('idle') // idle | subiendo | listo | error
+  const [estado, setEstadoLocal] = useState('idle') // idle | subiendo | listo | error
   const [progreso, setProgreso] = useState(0)
   const [error, setError] = useState(null)
+
+  function setEstado(nuevo) {
+    setEstadoLocal(nuevo)
+    onCambioEstado?.(nuevo)
+  }
 
   async function elegirArchivo(file) {
     if (!file) return
     const err = validarArchivo(file)
     if (err) {
       setError(err)
-      // limpiamos el input por si quieren reintentar con el mismo nombre
+      setEstado('error')
       if (inputRef.current) inputRef.current.value = ''
       return
     }
@@ -31,7 +45,10 @@ export default function SubidorComprobante({ onSubido }) {
     setProgreso(0)
 
     try {
-      const result = await subirComprobante(file, { onProgreso: setProgreso })
+      const result = await subirComprobante(file, {
+        onProgreso: setProgreso,
+        carpeta,
+      })
       setEstado('listo')
       onSubido?.(result)
     } catch (err) {
@@ -45,9 +62,9 @@ export default function SubidorComprobante({ onSubido }) {
 
   function quitar() {
     setArchivo(null)
-    setEstado('idle')
     setProgreso(0)
     setError(null)
+    setEstado('idle')
     if (inputRef.current) inputRef.current.value = ''
     onSubido?.(null)
   }

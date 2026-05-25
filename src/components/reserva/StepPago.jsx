@@ -11,6 +11,7 @@
 import { useState } from 'react'
 import StepHeader from './StepHeader'
 import BotonAcento from '../BotonAcento'
+import SubidorComprobante from '../comun/SubidorComprobante'
 import { formatearPrecio } from '../../lib/formato'
 
 export default function StepPago({
@@ -22,10 +23,13 @@ export default function StepPago({
   pagoObligatorio,
   colorAcento,
   enviando,
-  onConfirmarTransferencia,
+  onConfirmarTransferencia, // ({ urlComprobante }) => void
   onPagarEnLocal,
 }) {
   const [aliasCopiado, setAliasCopiado] = useState(false)
+  const [comprobante, setComprobante] = useState(null) // {url, path} | null
+  const [estadoSubida, setEstadoSubida] = useState('idle') // idle | subiendo | listo | error
+  const subiendo = estadoSubida === 'subiendo'
 
   async function copiarAlias() {
     try {
@@ -94,31 +98,39 @@ export default function StepPago({
           </a>
         )}
 
-        {/* Placeholder para subir comprobante (Parte B) */}
-        <div className="rounded-xl border border-dashed border-ink/15 p-4 text-center">
-          <p className="font-sans text-ink/40 text-xs uppercase tracking-wider">
-            Próximamente
+        {/* Subida del comprobante (opcional — también pueden mandarlo por WhatsApp) */}
+        <div>
+          <p className="font-sans text-ink/60 text-xs uppercase tracking-wider mb-2">
+            O subí el comprobante acá (opcional)
           </p>
-          <p className="font-sans text-ink/60 text-sm mt-1">
-            Subir comprobante acá
-          </p>
+          <SubidorComprobante
+            carpeta={`comprobantes-turnos/${negocio.slug}`}
+            onSubido={setComprobante}
+            onCambioEstado={setEstadoSubida}
+          />
         </div>
       </div>
 
       {/* Acciones */}
       <div className="mt-6 space-y-3">
         <BotonAcento
-          onClick={onConfirmarTransferencia}
-          disabled={enviando}
+          onClick={() =>
+            onConfirmarTransferencia({ urlComprobante: comprobante?.url || null })
+          }
+          disabled={enviando || subiendo}
           colorAcento={colorAcento}
         >
-          {enviando ? 'Confirmando…' : 'Ya transferí, confirmar reserva'}
+          {subiendo
+            ? 'Esperando que termine la subida…'
+            : enviando
+            ? 'Confirmando…'
+            : 'Ya transferí, confirmar reserva'}
         </BotonAcento>
 
         {!pagoObligatorio && (
           <BotonAcento
             onClick={onPagarEnLocal}
-            disabled={enviando}
+            disabled={enviando || subiendo}
             colorAcento={colorAcento}
             variante="fantasma"
           >
