@@ -10,6 +10,8 @@
 // Mantenemos compatibilidad con la estructura vieja del seed inicial
 // ({ abre, cierra, cerrado }) — `normalizarDia` la convierte sola.
 
+import { horaAMinutos } from './fechas'
+
 export const DIAS_SEMANA = [
   { key: 'lunes',     label: 'Lunes' },
   { key: 'martes',    label: 'Martes' },
@@ -65,6 +67,43 @@ export function franjaInvalida({ horaInicio, horaFin }) {
   if (!horaInicio || !horaFin) return 'Completá ambas horas.'
   if (horaInicio >= horaFin) return 'La hora de fin debe ser posterior al inicio.'
   return null
+}
+
+// Para la vista grilla del día: calcula el rango visible (de la primera
+// franja abierta a la última) y los huecos cerrados intermedios.
+// Devuelve null si el día está cerrado o sin franjas.
+//   minVisible, maxVisible: minutos desde medianoche.
+//   franjasAbiertas: [{ inicio, fin }] en minutos.
+//   franjasCerradas: huecos ENTRE franjas (ej: descanso del mediodía).
+export function calcularRangoVisible(horarioDia) {
+  const dia = normalizarDia(horarioDia)
+  if (!dia.abierto || dia.franjas.length === 0) return null
+
+  const franjas = dia.franjas
+    .filter((f) => f.horaInicio && f.horaFin)
+    .map((f) => ({
+      inicio: horaAMinutos(f.horaInicio),
+      fin: horaAMinutos(f.horaFin),
+    }))
+    .filter((f) => f.fin > f.inicio)
+    .sort((a, b) => a.inicio - b.inicio)
+
+  if (franjas.length === 0) return null
+
+  const minVisible = franjas[0].inicio
+  const maxVisible = franjas[franjas.length - 1].fin
+
+  const franjasCerradas = []
+  for (let i = 1; i < franjas.length; i++) {
+    if (franjas[i].inicio > franjas[i - 1].fin) {
+      franjasCerradas.push({
+        inicio: franjas[i - 1].fin,
+        fin: franjas[i].inicio,
+      })
+    }
+  }
+
+  return { minVisible, maxVisible, franjasAbiertas: franjas, franjasCerradas }
 }
 
 // True si dos o más franjas válidas del mismo día se solapan en el tiempo.

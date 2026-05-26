@@ -2,7 +2,7 @@
 // El dueño elige servicio, profesional (o "cualquiera"), fecha + hora y carga
 // los datos del cliente. Crea el turno con estado "confirmado".
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import CampoTexto from './CampoTexto'
 import SelectorFechaHora from './SelectorFechaHora'
 
@@ -11,26 +11,39 @@ export default function TurnoFormManual({
   servicios,
   profesionales,
   fechaInicial,
-  onCrear,           // (payload) => Promise
+  horaInicial = null,            // si viene, preselecciona el slot
+  profesionalIdInicial = '',     // si viene, preselecciona ese profesional
+  onCrear,
   onCancelar,
   colorAcento,
   etiquetaServicio = 'servicio',
   etiquetaProfesional = 'profesional',
 }) {
   const [servicioId, setServicioId] = useState(servicios[0]?.id || '')
-  const [profId, setProfId] = useState('') // '' = cualquiera
-  const [horario, setHorario] = useState(null) // {fecha, hora} | null
+  const [profId, setProfId] = useState(profesionalIdInicial || '')
+  // Si nos llegó horaInicial + fechaInicial, arrancamos con el slot preseleccionado.
+  const [horario, setHorario] = useState(
+    horaInicial && fechaInicial
+      ? { fecha: fechaInicial, hora: horaInicial }
+      : null
+  )
   const [nombre, setNombre] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [email, setEmail] = useState('')
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
 
-  // Si cambia servicio o profesional, el slot elegido puede dejar de ser
-  // válido (otro tiempo de duración). Resetear para forzar re-elegir.
-  useEffect(() => {
+  // Cuando cambia servicio o profesional, el slot elegido puede dejar de ser
+  // válido. Reset explícito en los onChange (no useEffect — evita pisar el
+  // horario preseleccionado en el primer mount).
+  function cambiarServicio(id) {
+    setServicioId(id)
     setHorario(null)
-  }, [servicioId, profId])
+  }
+  function cambiarProfesional(id) {
+    setProfId(id)
+    setHorario(null)
+  }
 
   const servicio = servicios.find((s) => s.id === servicioId) || null
   const nombreVacio = nombre.trim().length === 0
@@ -89,7 +102,7 @@ export default function TurnoFormManual({
         ) : (
           <select
             value={servicioId}
-            onChange={(e) => setServicioId(e.target.value)}
+            onChange={(e) => cambiarServicio(e.target.value)}
             className="w-full rounded-xl border border-ink/15 bg-white px-4 py-3 font-sans text-ink focus:outline-none focus:border-ink/40"
           >
             {servicios.map((s) => (
@@ -108,7 +121,7 @@ export default function TurnoFormManual({
         </span>
         <select
           value={profId}
-          onChange={(e) => setProfId(e.target.value)}
+          onChange={(e) => cambiarProfesional(e.target.value)}
           className="w-full rounded-xl border border-ink/15 bg-white px-4 py-3 font-sans text-ink focus:outline-none focus:border-ink/40"
         >
           <option value="">Cualquier {etiquetaProfesional}</option>

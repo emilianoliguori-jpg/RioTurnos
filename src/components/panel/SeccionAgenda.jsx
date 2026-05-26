@@ -1,9 +1,11 @@
 // Sección Agenda del panel.
-// Tiene 2 vistas:
-//   - 'dia': turnos del día seleccionado (vista por defecto).
-//   - 'pendientes': todos los pendiente_pago del negocio, ordenados cronológicamente.
-// Permite: alta manual, marcar atendido, reagendar, cancelar, confirmar pago,
-// rechazar (los dos últimos sólo en pendientes_pago).
+// Tiene 2 vistas principales:
+//   - 'dia': turnos del día seleccionado (con sub-vista 'lista' o 'grilla').
+//   - 'pendientes': todos los pendiente_pago del negocio, ordenados crono.
+//
+// La sub-vista 'grilla' muestra los turnos por profesional sobre el eje de
+// hora, estilo calendario. Al clickear un turno se abre la misma TurnoCard
+// que en la lista (mismas acciones, mismos callbacks).
 
 import { useEffect, useState } from 'react'
 import { formatearFecha } from '../../lib/fechas'
@@ -24,22 +26,26 @@ import MetricasDia from './MetricasDia'
 import TurnoCard from './TurnoCard'
 import TurnoFormManual from './TurnoFormManual'
 import ReagendarForm from './ReagendarForm'
+import GrillaPorProfesional from './grilla/GrillaPorProfesional'
 
 export default function SeccionAgenda({ negocio }) {
   const rubro = getRubro(negocio.rubro)
   const colorAcento = negocio.colorAcento || '#0B6E6E'
 
   const [vista, setVista] = useState('dia') // 'dia' | 'pendientes'
+  const [vistaTurnos, setVistaTurnos] = useState('lista') // 'lista' | 'grilla'
   const [fechaStr, setFechaStr] = useState(() => formatearFecha(new Date()))
   const [turnos, setTurnos] = useState(null) // null = cargando
   const [servicios, setServicios] = useState([])
   const [profesionales, setProfesionales] = useState([])
 
   const [creandoManual, setCreandoManual] = useState(false)
+  const [prefillManual, setPrefillManual] = useState(null) // { profId, hora } | null
   const [reagendandoId, setReagendandoId] = useState(null)
   const [confirmandoNegativaId, setConfirmandoNegativaId] = useState(null)
+  // En la grilla, qué turno está "expandido" abajo. En la lista no se usa.
+  const [turnoSeleccionadoId, setTurnoSeleccionadoId] = useState(null)
 
-  // Carga catálogos una sola vez (servicios + profesionales para el form manual).
   useEffect(() => {
     let cancelado = false
     async function cargar() {
@@ -74,6 +80,8 @@ export default function SeccionAgenda({ negocio }) {
     setReagendandoId(null)
     setConfirmandoNegativaId(null)
     setCreandoManual(false)
+    setPrefillManual(null)
+    setTurnoSeleccionadoId(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [negocio.id, fechaStr, vista])
 
@@ -81,6 +89,7 @@ export default function SeccionAgenda({ negocio }) {
   async function crearManual(payload) {
     const id = await crearTurno(negocio.id, payload)
     setCreandoManual(false)
+    setPrefillManual(null)
     if (payload.fecha !== fechaStr && vista === 'dia') {
       setFechaStr(payload.fecha)
     } else {
@@ -92,6 +101,7 @@ export default function SeccionAgenda({ negocio }) {
   async function reagendar(turnoId, { fecha, hora }) {
     await actualizarTurno(negocio.id, turnoId, { fecha, hora })
     setReagendandoId(null)
+    setTurnoSeleccionadoId(null)
     if (vista === 'dia' && fecha !== fechaStr) {
       setFechaStr(fecha)
     } else {
@@ -101,41 +111,77 @@ export default function SeccionAgenda({ negocio }) {
 
   async function marcarAtendido(turnoId) {
     await actualizarEstadoTurno(negocio.id, turnoId, 'atendido')
+    setTurnoSeleccionadoId(null)
     await recargar()
   }
 
   async function aplicarNegativa(turnoId) {
-    // Tanto "Cancelar" como "Rechazar" terminan en estado=cancelado: el slot
-    // se libera. La diferencia es semántica (rechazar = el cliente no pagó).
     await actualizarEstadoTurno(negocio.id, turnoId, 'cancelado')
     setConfirmandoNegativaId(null)
+    setTurnoSeleccionadoId(null)
     await recargar()
   }
 
   async function aprobarPago(turnoId) {
     await confirmarPagoTurno(negocio.id, turnoId)
+    setTurnoSeleccionadoId(null)
     await recargar()
   }
+
+  // --- Handlers de la grilla ---
+  function alClickTurnoGrilla(turno) {
+    setTurnoSeleccionadoId(turno.id)
+  }
+  function alClickLibreGrilla(profesionalId, horaStr) {
+    setPrefillManual({ profesionalId: profesionalId || '', hora: horaStr })
+    setCreandoManual(true)
+    setTurnoSeleccionadoId(null)
+  }
+
+  // Encapsula el render de un item (TurnoCard o ReagendarForm). Lo reusan
+  // la lista (en map) y la grilla (para el detalle del seleccionado).
+  function renderItem(t) {
+    if (reagendandoId === t.id) {
+      return (
+        <ReagendarForm
+          key={t.id}
+          negocio={negocio}
+          turno={t}
+          onConfirmar={(nuevo) => reagendar(t.id, nuevo)}
+          onCancelar={() => setReagendandoId(null)}
+          colorAcento={colorAcento}
+        />
+      )
+    }
+    return (
+      <TurnoCard
+        key={t.id}
+        turno={t}
+        mostrarFecha={vista === 'pendientes'}
+        confirmandoNegativa={confirmandoNegativaId === t.id}
+        onPedirNegativa={() => setConfirmandoNegativaId(t.id)}
+        onConfirmarNegativa={() => aplicarNegativa(t.id)}
+        onAbortarNegativa={() => setConfirmandoNegativaId(null)}
+        onMarcarAtendido={() => marcarAtendido(t.id)}
+        onPedirReagendar={() => setReagendandoId(t.id)}
+        onConfirmarPago={() => aprobarPago(t.id)}
+      />
+    )
+  }
+
+  const turnoSeleccionado = (turnos || []).find((t) => t.id === turnoSeleccionadoId)
 
   // --- Render ---
   return (
     <div className="space-y-5">
-      {/* Selector de vista */}
+      {/* Selector de vista principal (Día / Pendientes) */}
       <div className="inline-flex rounded-full border border-ink/15 bg-white p-1">
-        <BotonVista
-          activo={vista === 'dia'}
-          onClick={() => setVista('dia')}
-          colorAcento={colorAcento}
-        >
+        <BotonChip activo={vista === 'dia'} onClick={() => setVista('dia')} colorAcento={colorAcento}>
           Día
-        </BotonVista>
-        <BotonVista
-          activo={vista === 'pendientes'}
-          onClick={() => setVista('pendientes')}
-          colorAcento={colorAcento}
-        >
+        </BotonChip>
+        <BotonChip activo={vista === 'pendientes'} onClick={() => setVista('pendientes')} colorAcento={colorAcento}>
           Pendientes de pago
-        </BotonVista>
+        </BotonChip>
       </div>
 
       {vista === 'dia' && (
@@ -143,17 +189,38 @@ export default function SeccionAgenda({ negocio }) {
           <SelectorDia valor={fechaStr} onCambiar={setFechaStr} />
           <MetricasDia turnos={turnos || []} colorAcento={colorAcento} />
 
-          {!creandoManual && (
-            <div className="flex justify-end">
+          {/* Sub-selector Lista / Grilla — sólo en vista día */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="inline-flex rounded-full border border-ink/15 bg-white p-1">
+              <BotonChip
+                activo={vistaTurnos === 'lista'}
+                onClick={() => setVistaTurnos('lista')}
+                colorAcento={colorAcento}
+              >
+                Lista
+              </BotonChip>
+              <BotonChip
+                activo={vistaTurnos === 'grilla'}
+                onClick={() => setVistaTurnos('grilla')}
+                colorAcento={colorAcento}
+              >
+                Por profesional
+              </BotonChip>
+            </div>
+
+            {!creandoManual && (
               <button
                 type="button"
-                onClick={() => setCreandoManual(true)}
+                onClick={() => {
+                  setPrefillManual(null)
+                  setCreandoManual(true)
+                }}
                 className="rounded-full bg-teal text-paper px-4 py-2 font-sans text-sm font-medium hover:opacity-90"
               >
                 + Cargar turno manual
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           {creandoManual && (
             <TurnoFormManual
@@ -161,8 +228,13 @@ export default function SeccionAgenda({ negocio }) {
               servicios={servicios}
               profesionales={profesionales}
               fechaInicial={fechaStr}
+              horaInicial={prefillManual?.hora || null}
+              profesionalIdInicial={prefillManual?.profesionalId || ''}
               onCrear={crearManual}
-              onCancelar={() => setCreandoManual(false)}
+              onCancelar={() => {
+                setCreandoManual(false)
+                setPrefillManual(null)
+              }}
               colorAcento={colorAcento}
               etiquetaServicio={rubro.servicioSingular}
               etiquetaProfesional={rubro.profesionalSingular}
@@ -173,18 +245,49 @@ export default function SeccionAgenda({ negocio }) {
 
       {vista === 'pendientes' && (
         <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="font-serif text-lg text-ink font-light">
-            Pendientes de pago
-          </p>
+          <p className="font-serif text-lg text-ink font-light">Pendientes de pago</p>
           <p className="font-sans text-ink/50 text-xs mt-1">
             Todos los turnos que esperan tu confirmación, en orden cronológico.
           </p>
         </div>
       )}
 
-      {/* Lista de turnos */}
+      {/* Cuerpo: grilla o lista */}
       {turnos === null ? (
         <p className="font-sans text-ink/50 text-sm">Cargando…</p>
+      ) : vista === 'dia' && vistaTurnos === 'grilla' ? (
+        <>
+          <GrillaPorProfesional
+            negocio={negocio}
+            fechaStr={fechaStr}
+            turnos={turnos}
+            profesionales={profesionales}
+            onClickTurno={alClickTurnoGrilla}
+            onClickLibre={alClickLibreGrilla}
+          />
+
+          {turnoSeleccionado && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-sans text-ink/50 text-xs uppercase tracking-wider">
+                  Turno seleccionado
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTurnoSeleccionadoId(null)
+                    setReagendandoId(null)
+                    setConfirmandoNegativaId(null)
+                  }}
+                  className="font-sans text-xs text-ink/60 hover:text-ink underline"
+                >
+                  Cerrar
+                </button>
+              </div>
+              {renderItem(turnoSeleccionado)}
+            </div>
+          )}
+        </>
       ) : turnos.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-ink/15 bg-white p-10 text-center">
           <p className="font-serif text-xl text-ink font-light">
@@ -198,43 +301,19 @@ export default function SeccionAgenda({ negocio }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {turnos.map((t) =>
-            reagendandoId === t.id ? (
-              <ReagendarForm
-                key={t.id}
-                negocio={negocio}
-                turno={t}
-                onConfirmar={(nuevo) => reagendar(t.id, nuevo)}
-                onCancelar={() => setReagendandoId(null)}
-                colorAcento={colorAcento}
-              />
-            ) : (
-              <TurnoCard
-                key={t.id}
-                turno={t}
-                mostrarFecha={vista === 'pendientes'}
-                confirmandoNegativa={confirmandoNegativaId === t.id}
-                onPedirNegativa={() => setConfirmandoNegativaId(t.id)}
-                onConfirmarNegativa={() => aplicarNegativa(t.id)}
-                onAbortarNegativa={() => setConfirmandoNegativaId(null)}
-                onMarcarAtendido={() => marcarAtendido(t.id)}
-                onPedirReagendar={() => setReagendandoId(t.id)}
-                onConfirmarPago={() => aprobarPago(t.id)}
-              />
-            )
-          )}
+          {turnos.map((t) => renderItem(t))}
         </div>
       )}
     </div>
   )
 }
 
-function BotonVista({ activo, onClick, children, colorAcento }) {
+function BotonChip({ activo, onClick, children, colorAcento }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rounded-full px-4 py-1.5 font-sans text-sm transition"
+      className="rounded-full px-4 py-1.5 font-sans text-sm transition whitespace-nowrap"
       style={
         activo
           ? { backgroundColor: colorAcento, color: '#F5F1EA' }
