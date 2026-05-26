@@ -1,6 +1,10 @@
 // Paso 3: elegir día y hora.
-// Calcula los horarios disponibles del día/profesional usando el servicio
-// `disponibilidad` (lógica pura) y los turnos existentes (Firestore).
+// Día actual mostrado MONUMENTAL (número gigante + mes). Day picker scroll
+// horizontal con chips compactos (día de semana + número). Slots como
+// botones serif con borde fino.
+//
+// Lógica de disponibilidad: idéntica a la versión anterior — solo cambia
+// el rendering visual.
 
 import { useEffect, useMemo, useState } from 'react'
 import StepHeader from './StepHeader'
@@ -8,17 +12,19 @@ import {
   proximosDias,
   diaSemana,
   formatearFecha,
-  etiquetaDia,
 } from '../../lib/fechas'
 import { normalizarDia } from '../../lib/horarios'
 import { getSlotsOcupadosDelDia } from '../../services/slots'
 import { getProfesionales } from '../../services/profesionales'
 import { getHorariosDisponibles } from '../../services/disponibilidad'
 
+const NOMBRES_DIAS_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+const NOMBRES_MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+
 export default function Step3Fecha({
   negocio,
   servicio,
-  profesional, // puede ser { id: null } = "cualquiera"
+  profesional,
   onElegir,
   colorAcento,
 }) {
@@ -34,9 +40,6 @@ export default function Step3Fecha({
       const fechaStr = formatearFecha(diaElegido)
       const horarioDia = negocio.horariosAtencion?.[diaSemana(diaElegido)]
 
-      // Si eligió un profesional concreto, sólo miramos sus turnos.
-      // Si eligió "cualquiera", tomamos todos los profesionales activos: hay
-      // disponibilidad si ALGUNO de ellos tiene el slot libre.
       let profesionalesAEvaluar = []
       if (profesional.id) {
         profesionalesAEvaluar = [{ id: profesional.id }]
@@ -46,8 +49,6 @@ export default function Step3Fecha({
 
       const setLibres = new Set()
       for (const p of profesionalesAEvaluar) {
-        // Lee de la subcolección PÚBLICA slots (no de turnos, que es privado).
-        // Tiene los campos suficientes (hora, duracionMinutos) sin exponer PII.
         const ocupados = await getSlotsOcupadosDelDia(negocio.id, fechaStr, {
           profesionalId: p.id,
         })
@@ -64,17 +65,35 @@ export default function Step3Fecha({
       setCargando(false)
     }
     calcular()
-    return () => {
-      cancelado = true
-    }
+    return () => { cancelado = true }
   }, [diaElegido, negocio, servicio, profesional])
+
+  const nombreDiaLargo = NOMBRES_DIAS_CORTOS[diaElegido.getDay()]
+  const nombreMes = NOMBRES_MESES[diaElegido.getMonth()]
 
   return (
     <section>
-      <StepHeader titulo="¿Qué día y hora?" />
+      <div className="reveal-up"><StepHeader titulo="¿Cuándo te conviene?" /></div>
 
-      {/* Selector de día — scroll horizontal mobile-first */}
-      <div className="-mx-6 px-6 overflow-x-auto pb-2">
+      {/* Día seleccionado MONUMENTAL */}
+      <div className="my-8 sm:my-10 reveal-up delay-1">
+        <p className="eyebrow text-ink/45">{nombreDiaLargo}</p>
+        <p className="display-mono text-ink text-[3.5rem] sm:text-[4.5rem] mt-1 flex items-baseline gap-3">
+          <span>{diaElegido.getDate()}</span>
+          <span
+            className="font-serif italic text-2xl sm:text-3xl font-light"
+            style={{ color: colorAcento }}
+          >
+            ·
+          </span>
+          <span className="font-serif text-2xl sm:text-3xl text-ink/60 font-light">
+            {nombreMes}
+          </span>
+        </p>
+      </div>
+
+      {/* Day picker horizontal */}
+      <div className="reveal-up delay-2 -mx-6 px-6 overflow-x-auto pb-2 mb-10">
         <div className="flex gap-2 w-max">
           {dias.map((d) => {
             const seleccionado = formatearFecha(d) === formatearFecha(diaElegido)
@@ -82,7 +101,6 @@ export default function Step3Fecha({
               negocio.horariosAtencion?.[diaSemana(d)]
             ).abierto
 
-            // Días cerrados quedan visualmente atenuados y no clickeables.
             if (cerrado) {
               return (
                 <button
@@ -90,13 +108,18 @@ export default function Step3Fecha({
                   type="button"
                   disabled
                   aria-disabled
-                  className="rounded-2xl border border-ink/10 px-4 py-3 font-sans text-sm whitespace-nowrap text-ink/30 cursor-not-allowed bg-paper"
+                  className="rounded-2xl border border-ink/10 px-3.5 py-3 text-center cursor-not-allowed bg-paper"
                   title="Cerrado"
                 >
-                  {etiquetaDia(d)}
-                  <span className="block text-[10px] uppercase tracking-wider mt-0.5">
+                  <p className="eyebrow text-ink/25">
+                    {NOMBRES_DIAS_CORTOS[d.getDay()]}
+                  </p>
+                  <p className="font-serif text-xl text-ink/25 font-light mt-1">
+                    {d.getDate()}
+                  </p>
+                  <p className="font-sans text-[9px] text-ink/30 mt-0.5 tracking-widest uppercase">
                     Cerrado
-                  </span>
+                  </p>
                 </button>
               )
             }
@@ -106,7 +129,7 @@ export default function Step3Fecha({
                 key={formatearFecha(d)}
                 type="button"
                 onClick={() => setDiaElegido(d)}
-                className="rounded-2xl border px-4 py-3 font-sans text-sm whitespace-nowrap transition"
+                className="card-editorial rounded-2xl border px-3.5 py-3 text-center transition"
                 style={
                   seleccionado
                     ? {
@@ -114,32 +137,42 @@ export default function Step3Fecha({
                         color: '#F5F1EA',
                         borderColor: colorAcento,
                       }
-                    : { borderColor: 'rgba(15,20,25,0.15)', color: '#0F1419' }
+                    : { borderColor: 'rgba(15,20,25,0.12)', color: '#0F1419' }
                 }
               >
-                {etiquetaDia(d)}
+                <p
+                  className="eyebrow"
+                  style={{ color: seleccionado ? 'rgba(245,241,234,0.7)' : 'rgba(15,20,25,0.45)' }}
+                >
+                  {NOMBRES_DIAS_CORTOS[d.getDay()]}
+                </p>
+                <p className="font-serif text-xl font-light mt-1">
+                  {d.getDate()}
+                </p>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* Selector de hora */}
-      <div className="mt-6">
+      {/* Slots */}
+      <div className="reveal-up delay-3">
+        <p className="eyebrow text-ink/45 mb-4">Horarios disponibles</p>
         {cargando ? (
-          <p className="font-sans text-ink/50 text-sm">Buscando horarios…</p>
+          <p className="font-sans text-ink/50 text-sm">Buscando…</p>
         ) : horariosLibres.length === 0 ? (
           <p className="font-sans text-ink/60 text-sm">
-            No hay horarios disponibles para este día. Probá otro.
+            No hay horarios para este día. Probá otro.
           </p>
         ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-            {horariosLibres.map((h) => (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+            {horariosLibres.map((h, i) => (
               <button
                 key={h}
                 type="button"
                 onClick={() => onElegir({ fecha: formatearFecha(diaElegido), hora: h })}
-                className="rounded-xl border border-ink/15 py-3 font-sans text-sm text-ink hover:bg-ink/5 transition"
+                className="card-editorial rounded-2xl border border-ink/12 bg-white py-3.5 font-serif text-ink text-lg font-light transition hover:border-[var(--accent)] reveal-up"
+                style={{ animationDelay: `${0.35 + Math.min(i, 11) * 0.025}s` }}
               >
                 {h}
               </button>

@@ -1,14 +1,16 @@
-// Encabezado de cada paso: título grande en Fraunces.
-// El subtítulo es opcional.
+// Encabezado de cada paso (solo título grande + subtítulo opcional).
+// El número del paso vive en StepProgress, no acá — para no duplicar.
 
 export default function StepHeader({ titulo, subtitulo }) {
   return (
-    <header className="mb-8">
-      <h2 className="font-serif text-3xl sm:text-4xl text-ink font-light tracking-tight">
+    <header className="mb-10">
+      <h2 className="display-mono text-ink text-[2.5rem] sm:text-[3.25rem]">
         {titulo}
       </h2>
       {subtitulo && (
-        <p className="font-sans text-ink/60 text-sm mt-2">{subtitulo}</p>
+        <p className="font-sans text-ink/55 text-[15px] mt-3 max-w-sm leading-relaxed">
+          {subtitulo}
+        </p>
       )}
     </header>
   )

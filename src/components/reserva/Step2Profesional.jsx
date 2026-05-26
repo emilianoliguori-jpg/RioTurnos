@@ -1,4 +1,6 @@
-// Paso 2: elegir profesional, o "el primero disponible".
+// Paso 2: elegir profesional.
+// Opción "cualquiera" arriba destacada con asterisco decorativo Fraunces.
+// Cada profesional como card con avatar circular grande y nombre en serif.
 
 import StepHeader from './StepHeader'
 
@@ -11,37 +13,53 @@ export default function Step2Profesional({
 }) {
   return (
     <section>
-      <StepHeader titulo={pregunta} />
+      <div className="reveal-up"><StepHeader titulo={pregunta} /></div>
 
       <ul className="space-y-3">
-        <li>
+        {/* Cualquiera disponible — destacada con borde dashed y asterisco */}
+        <li className="reveal-up delay-2">
           <button
             type="button"
             onClick={() => onElegir({ id: null, nombre: etiquetaCualquiera })}
-            className="w-full text-left rounded-2xl border-2 border-dashed border-ink/15 bg-white hover:border-ink/30 transition px-5 py-4"
+            className="card-editorial group w-full text-left rounded-3xl bg-white border-2 border-dashed border-ink/15 px-5 sm:px-7 py-5 flex items-center gap-5"
           >
-            <p className="font-sans text-ink font-medium">{etiquetaCualquiera}</p>
-            <p className="font-sans text-ink/50 text-sm mt-0.5">
-              Te asignamos al primero que tenga lugar
-            </p>
+            <span
+              className="editorial-num text-4xl sm:text-5xl text-ink/35 transition-colors duration-300 group-hover:text-[var(--accent)] min-w-[2.2rem]"
+              aria-hidden="true"
+            >
+              ✦
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="font-serif text-ink text-lg sm:text-xl leading-tight">
+                {etiquetaCualquiera}
+              </p>
+              <p className="font-sans text-ink/45 text-[11px] mt-1.5 tracking-[0.15em] uppercase">
+                Quien tenga lugar primero
+              </p>
+            </div>
           </button>
         </li>
-        {profesionales.map((p) => (
-          <li key={p.id}>
+
+        {profesionales.map((p, i) => (
+          <li
+            key={p.id}
+            className="reveal-up"
+            style={{ animationDelay: `${0.3 + i * 0.07}s` }}
+          >
             <button
               type="button"
               onClick={() => onElegir(p)}
-              className="w-full text-left rounded-2xl border border-ink/10 bg-white hover:border-ink/30 transition px-5 py-4"
+              className="card-editorial group w-full text-left rounded-3xl bg-white px-5 sm:px-7 py-5 flex items-center gap-5"
             >
-              <div className="flex items-center gap-3">
-                <span
-                  className="inline-flex items-center justify-center w-10 h-10 rounded-full text-paper font-sans font-medium"
-                  style={{ backgroundColor: colorAcento }}
-                >
-                  {p.nombre.charAt(0)}
-                </span>
-                <p className="font-sans text-ink font-medium">{p.nombre}</p>
-              </div>
+              <span
+                className="inline-flex items-center justify-center w-14 h-14 rounded-full font-serif text-2xl font-light text-paper flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+                style={{ backgroundColor: colorAcento }}
+              >
+                {(p.nombre || '?').charAt(0)}
+              </span>
+              <p className="font-serif text-ink text-xl sm:text-2xl leading-tight">
+                {p.nombre}
+              </p>
             </button>
           </li>
         ))}

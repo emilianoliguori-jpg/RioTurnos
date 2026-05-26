@@ -1,10 +1,9 @@
-// Paso 4: formulario con datos del cliente.
-// Validaciones simples del lado del cliente; las reglas duras irán en
-// Firestore Security Rules (próxima etapa).
+// Paso 4: datos del cliente.
+// Inputs sin border-box, solo underline minimal. Floating labels que suben
+// y toman el color de acento al focus o llenado. Estilo periódico.
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import StepHeader from './StepHeader'
-import BotonAcento from '../BotonAcento'
 
 export default function Step4Datos({
   onConfirmar,
@@ -15,6 +14,10 @@ export default function Step4Datos({
   const [nombre, setNombre] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [email, setEmail] = useState('')
+
+  const idNombre = useId()
+  const idWhatsapp = useId()
+  const idEmail = useId()
 
   const valido =
     nombre.trim().length >= 2 &&
@@ -31,49 +34,75 @@ export default function Step4Datos({
     })
   }
 
-  const inputCls =
-    'w-full rounded-xl border border-ink/15 bg-white px-4 py-3 font-sans text-ink placeholder:text-ink/40 focus:outline-none focus:border-ink/40 transition'
-
   return (
     <section>
-      <StepHeader titulo="¿A nombre de quién?" subtitulo="Para confirmarte el turno." />
+      <div className="reveal-up">
+        <StepHeader
+          titulo="¿A nombre de quién?"
+          subtitulo="Para confirmarte el turno."
+        />
+      </div>
 
-      <form onSubmit={submit} className="space-y-3">
-        <input
-          className={inputCls}
+      <form onSubmit={submit} className="space-y-7">
+        <Campo
+          id={idNombre}
+          label="Nombre y apellido"
           type="text"
-          placeholder="Nombre y apellido"
           value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          onChange={setNombre}
           autoComplete="name"
+          delay="delay-1"
         />
-        <input
-          className={inputCls}
+        <Campo
+          id={idWhatsapp}
+          label="WhatsApp"
           type="tel"
-          placeholder="WhatsApp (ej: 3411234567)"
           value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
+          onChange={setWhatsapp}
           autoComplete="tel"
+          delay="delay-2"
         />
-        <input
-          className={inputCls}
+        <Campo
+          id={idEmail}
+          label="Email"
           type="email"
-          placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={setEmail}
           autoComplete="email"
+          delay="delay-3"
         />
 
-        <div className="pt-4">
-          <BotonAcento
+        <div className="pt-6 reveal-up delay-4">
+          <button
             type="submit"
             disabled={!valido || enviando}
-            colorAcento={colorAcento}
+            className="card-editorial w-full rounded-full px-7 py-4 font-sans text-sm font-medium tracking-wide text-paper transition disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: colorAcento }}
           >
             {enviando ? 'Confirmando…' : etiquetaBoton}
-          </BotonAcento>
+          </button>
         </div>
       </form>
     </section>
+  )
+}
+
+// Input con floating label estilo periódico (sin border box, solo underline).
+function Campo({ id, label, type, value, onChange, autoComplete, delay }) {
+  return (
+    <div className={`relative reveal-up ${delay}`}>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        autoComplete={autoComplete}
+        placeholder=" "
+        className="float-input"
+      />
+      <label htmlFor={id} className="float-label">
+        {label}
+      </label>
+    </div>
   )
 }

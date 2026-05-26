@@ -1,21 +1,21 @@
-// Barra de progreso superior del flujo de reserva.
-// Muestra 5 puntitos; el actual y los previos se pintan con el color de acento.
+// Indicador editorial de progreso: "01 / 05" en eyebrow + línea fina que
+// crece de izq a der según el paso actual. Reemplaza los dots tradicionales.
 
 export default function StepProgress({ paso, total = 5, colorAcento }) {
+  const pct = Math.max(0, Math.min(100, (paso / total) * 100))
   return (
-    <div className="flex items-center gap-1.5 w-full max-w-md mx-auto">
-      {Array.from({ length: total }).map((_, i) => {
-        const activo = i < paso
-        return (
-          <div
-            key={i}
-            className="h-1 flex-1 rounded-full transition-colors"
-            style={{
-              backgroundColor: activo ? colorAcento : 'rgba(15,20,25,0.12)',
-            }}
-          />
-        )
-      })}
+    <div>
+      <div className="flex items-baseline justify-between mb-2.5">
+        <span className="eyebrow text-ink/45">
+          Paso {String(paso).padStart(2, '0')} <span className="opacity-50 mx-1">/</span> {String(total).padStart(2, '0')}
+        </span>
+      </div>
+      <div className="relative h-px bg-ink/10">
+        <div
+          className="absolute left-0 top-0 h-px transition-[width] duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{ width: `${pct}%`, backgroundColor: colorAcento }}
+        />
+      </div>
     </div>
   )
 }

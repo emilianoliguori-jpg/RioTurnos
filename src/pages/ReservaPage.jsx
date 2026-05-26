@@ -27,6 +27,7 @@ import Step3Fecha from '../components/reserva/Step3Fecha'
 import Step4Datos from '../components/reserva/Step4Datos'
 import StepPago from '../components/reserva/StepPago'
 import Step5Confirmacion from '../components/reserva/Step5Confirmacion'
+import FondoAtmosfera from '../components/reserva/FondoAtmosfera'
 import PoweredByRioTurnos from '../components/comun/PoweredByRioTurnos'
 
 export default function ReservaPage() {
@@ -203,82 +204,94 @@ export default function ReservaPage() {
   }
 
   return (
-    <Layout>
-      <div className="mb-8">
-        <p className="font-sans text-ink/50 text-xs uppercase tracking-wider">
+    <Layout colorAcento={colorAcento}>
+      {/* Chrome de la página: nombre del negocio + (opcional bienvenida) + progress */}
+      <header className="mb-12">
+        <p className="eyebrow text-ink/50 reveal-up">
           {negocio.nombre}
         </p>
         {paso === 1 && negocio.textos?.bienvenida && (
-          <p className="font-sans text-ink/70 text-sm mt-1 mb-4">
+          <p className="font-serif text-ink/70 text-base mt-3 max-w-xs italic font-light leading-snug reveal-up delay-1">
             {negocio.textos.bienvenida}
           </p>
         )}
-        <StepProgress paso={paso} total={totalPasos} colorAcento={colorAcento} />
-      </div>
+        <div className="mt-8 reveal-up delay-2">
+          <StepProgress paso={paso} total={totalPasos} colorAcento={colorAcento} />
+        </div>
+      </header>
 
-      {paso === 1 && (
-        <Step1Servicio
-          pregunta={rubro.preguntaPaso1}
-          servicios={servicios}
-          onElegir={elegirServicio}
-          colorAcento={colorAcento}
-        />
-      )}
-      {paso === 2 && (
-        <Step2Profesional
-          pregunta={rubro.preguntaPaso2}
-          profesionales={profesionales}
-          onElegir={elegirProfesional}
-          colorAcento={colorAcento}
-          etiquetaCualquiera={`Cualquier ${rubro.profesionalSingular}`}
-        />
-      )}
-      {paso === 3 && (
-        <Step3Fecha
-          negocio={negocio}
-          servicio={servicio}
-          profesional={profesional}
-          onElegir={elegirHorario}
-          colorAcento={colorAcento}
-        />
-      )}
-      {paso === 4 && (
-        <Step4Datos
-          onConfirmar={alSubmitDatos}
-          colorAcento={colorAcento}
-          enviando={enviando && !cobroActivado}
-          etiquetaBoton={cobroActivado ? 'Continuar al pago' : 'Confirmar turno'}
-        />
-      )}
-      {cobroActivado && paso === 5 && (
-        <StepPago
-          negocio={negocio}
-          servicio={servicio}
-          horario={horario}
-          monto={montoACobrar()}
-          tipoCobro={tipoCobro}
-          pagoObligatorio={pagoObligatorio}
-          colorAcento={colorAcento}
-          enviando={enviando}
-          onConfirmarTransferencia={alConfirmarTransferencia}
-          onPagarEnLocal={alPagarEnLocal}
-        />
-      )}
-      {paso === pasoConfirmacion && resumenFinal && (
-        <Step5Confirmacion
-          negocio={negocio}
-          resumen={resumenFinal}
-          colorAcento={colorAcento}
-        />
-      )}
+      {/* Stage del paso. key={paso} re-monta → corre stageEnter en cada cambio. */}
+      <div key={paso} className="stage-enter">
+        {paso === 1 && (
+          <Step1Servicio
+            pregunta={rubro.preguntaPaso1}
+            servicios={servicios}
+            onElegir={elegirServicio}
+            colorAcento={colorAcento}
+          />
+        )}
+        {paso === 2 && (
+          <Step2Profesional
+            pregunta={rubro.preguntaPaso2}
+            profesionales={profesionales}
+            onElegir={elegirProfesional}
+            colorAcento={colorAcento}
+            etiquetaCualquiera={`Cualquier ${rubro.profesionalSingular}`}
+          />
+        )}
+        {paso === 3 && (
+          <Step3Fecha
+            negocio={negocio}
+            servicio={servicio}
+            profesional={profesional}
+            onElegir={elegirHorario}
+            colorAcento={colorAcento}
+          />
+        )}
+        {paso === 4 && (
+          <Step4Datos
+            onConfirmar={alSubmitDatos}
+            colorAcento={colorAcento}
+            enviando={enviando && !cobroActivado}
+            etiquetaBoton={cobroActivado ? 'Continuar al pago' : 'Confirmar turno'}
+          />
+        )}
+        {cobroActivado && paso === 5 && (
+          <StepPago
+            negocio={negocio}
+            servicio={servicio}
+            horario={horario}
+            monto={montoACobrar()}
+            tipoCobro={tipoCobro}
+            pagoObligatorio={pagoObligatorio}
+            colorAcento={colorAcento}
+            enviando={enviando}
+            onConfirmarTransferencia={alConfirmarTransferencia}
+            onPagarEnLocal={alPagarEnLocal}
+          />
+        )}
+        {paso === pasoConfirmacion && resumenFinal && (
+          <Step5Confirmacion
+            negocio={negocio}
+            resumen={resumenFinal}
+            colorAcento={colorAcento}
+          />
+        )}
+      </div>
     </Layout>
   )
 }
 
-function Layout({ children }) {
+// Layout con atmósfera. Pasa colorAcento como CSS var para que cualquier
+// descendiente pueda usar `var(--accent)` (ej. floating labels, hovers).
+function Layout({ children, colorAcento = '#0B6E6E' }) {
   return (
-    <main className="min-h-screen bg-paper px-6 py-10">
-      <div className="max-w-md mx-auto">
+    <main
+      className="relative min-h-screen bg-paper overflow-hidden"
+      style={{ '--accent': colorAcento }}
+    >
+      <FondoAtmosfera colorAcento={colorAcento} />
+      <div className="relative max-w-md mx-auto px-6 py-12 sm:py-16">
         {children}
         <PoweredByRioTurnos />
       </div>
