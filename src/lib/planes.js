@@ -1,6 +1,12 @@
 // Planes de suscripción mensual de Río Turnos.
-// Si tocás precios o agregás planes, hacelo acá; la página /planes y el
-// admin se adaptan solos.
+//
+// FUENTE ÚNICA DE VERDAD para precios, límites y features. Si cambiás algo
+// acá, los helpers de limitesPlan.js + la página /planes + las gates del
+// panel se adaptan solos. NO duplicar valores en otros archivos.
+//
+// Convención:
+//   maxProfesionales:  number | Infinity   (límite duro de la cantidad)
+//   dashboardCompleto: boolean             (acceso a métricas avanzadas)
 //
 // El plan "Fundador" es interno: solo el admin lo asigna a los pilotos
 // gratuitos. NO aparece en la página pública /planes.
@@ -12,51 +18,61 @@ export const PLANES = {
     precio: 0,
     publico: false,
     bajada: 'Plan interno para los pilotos. Gratis.',
+    maxProfesionales:  Infinity,
+    dashboardCompleto: true,
     features: [
-      'Acceso completo',
+      'Acceso completo, sin límites',
       'Soporte directo',
       'Sin costo durante el piloto',
     ],
   },
+
   inicial: {
     key: 'inicial',
     nombre: 'Inicial',
     precio: 18000,
     publico: true,
-    bajada: 'Profesional individual, 1 calendario.',
+    bajada: 'Profesional individual o equipo chico.',
+    maxProfesionales:  2,
+    dashboardCompleto: false,
     features: [
-      '1 profesional / calendario',
+      'Hasta 2 profesionales',
+      'Servicios ilimitados',
       'Reservas online ilimitadas',
-      'Cobro por transferencia',
-      'Panel del dueño',
+      'Cobro con seña por transferencia',
+      'Dashboard básico (turnos del día + actividad)',
     ],
   },
+
   profesional: {
     key: 'profesional',
     nombre: 'Profesional',
     precio: 28000,
     publico: true,
     destacado: true,
-    bajada: 'Para equipos de 2 a 3 profesionales.',
+    bajada: 'Para equipos de hasta 5 profesionales.',
+    maxProfesionales:  5,
+    dashboardCompleto: true,
     features: [
-      'Hasta 3 profesionales',
-      'Agenda compartida',
-      'Reservas online ilimitadas',
-      'Cobro por transferencia',
+      'Hasta 5 profesionales',
+      'Todo lo del plan Inicial',
+      'Dashboard completo (ingresos + top servicios)',
       'Soporte prioritario',
     ],
   },
+
   negocio: {
     key: 'negocio',
     nombre: 'Negocio',
     precio: 45000,
     publico: true,
-    bajada: 'Peluquería, clínica o estudio con 4+ profesionales.',
+    bajada: 'Peluquería, clínica o estudio con equipo grande.',
+    maxProfesionales:  Infinity,
+    dashboardCompleto: true,
     features: [
       'Profesionales ilimitados',
-      'Múltiples agendas',
-      'Reportes',
-      'Cobro por transferencia',
+      'Todo lo del plan Profesional',
+      'Reportes y métricas avanzadas',
       'Soporte prioritario',
     ],
   },

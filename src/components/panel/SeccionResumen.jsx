@@ -6,12 +6,15 @@ import { useEffect, useState } from 'react'
 import { getTurnosDelMes } from '../../services/turnos'
 import { calcularEstadisticasMes } from '../../services/estadisticas'
 import { formatearPrecio } from '../../lib/formato'
+import { limitesDePlan, planSiguiente } from '../../lib/limitesPlan'
 
 import Metrica from '../comun/Metrica'
 
-export default function SeccionResumen({ negocio }) {
+export default function SeccionResumen({ negocio, onIrASeccion }) {
   const colorAcento = negocio.colorAcento || '#0B6E6E'
   const cobroActivado = !!negocio.cobro?.activado
+  const { dashboardCompleto } = limitesDePlan(negocio.plan)
+  const planSig = planSiguiente(negocio.plan)
 
   const [stats, setStats] = useState(null) // null = cargando
   const [error, setError] = useState(null)
@@ -74,37 +77,75 @@ export default function SeccionResumen({ negocio }) {
         </div>
       </section>
 
-      {/* 3. Ingresos del mes — sólo si cobro activado */}
-      {cobroActivado && (
-        <section>
-          <h2 className="font-serif text-2xl text-ink font-light mb-4">
-            Ingresos del mes
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CardIngreso
-              etiqueta="Cobrado este mes"
-              monto={stats.ingresoCobrado}
-              variante="teal"
-              hint="Plata que ya entró (turnos confirmados o atendidos)."
-            />
-            <CardIngreso
-              etiqueta="Por confirmar"
-              monto={stats.ingresoPorConfirmar}
-              variante="copper"
-              hint="Reservaron y dicen que transfirieron, pero todavía no verificaste el pago."
-            />
-          </div>
-        </section>
-      )}
+      {/* 3 + 4. Ingresos + Top servicios — sólo si el plan los incluye.
+          Si el plan es Inicial (dashboardCompleto: false), una sola card
+          de upgrade reemplaza ambas secciones. */}
+      {dashboardCompleto ? (
+        <>
+          {cobroActivado && (
+            <section>
+              <h2 className="font-serif text-2xl text-ink font-light mb-4">
+                Ingresos del mes
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <CardIngreso
+                  etiqueta="Cobrado este mes"
+                  monto={stats.ingresoCobrado}
+                  variante="teal"
+                  hint="Plata que ya entró (turnos confirmados o atendidos)."
+                />
+                <CardIngreso
+                  etiqueta="Por confirmar"
+                  monto={stats.ingresoPorConfirmar}
+                  variante="copper"
+                  hint="Reservaron y dicen que transfirieron, pero todavía no verificaste el pago."
+                />
+              </div>
+            </section>
+          )}
 
-      {/* 4. Top servicios del mes */}
-      <section>
-        <h2 className="font-serif text-2xl text-ink font-light mb-4">
-          Top servicios del mes
-        </h2>
-        <TopServicios items={stats.topServicios} />
-      </section>
+          <section>
+            <h2 className="font-serif text-2xl text-ink font-light mb-4">
+              Top servicios del mes
+            </h2>
+            <TopServicios items={stats.topServicios} />
+          </section>
+        </>
+      ) : (
+        <CardUpgradeDashboard
+          planSiguiente={planSig}
+          onIrASuscripcion={() => onIrASeccion?.('suscripcion')}
+        />
+      )}
     </div>
+  )
+}
+
+function CardUpgradeDashboard({ planSiguiente, onIrASuscripcion }) {
+  return (
+    <section className="rounded-2xl border border-dashed border-ink/15 bg-white p-6 sm:p-8 text-center">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-ink/5 mb-4">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F1419" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      </div>
+      <h3 className="font-serif text-xl text-ink font-light">
+        Más estadísticas del negocio
+      </h3>
+      <p className="font-sans text-ink/60 text-sm mt-2 max-w-md mx-auto">
+        Ingresos del mes y top servicios — disponibles{planSiguiente ? ` en plan ${planSiguiente.nombre}` : ' en plan Profesional'}.
+      </p>
+      {planSiguiente && (
+        <button
+          type="button"
+          onClick={onIrASuscripcion}
+          className="mt-5 inline-flex items-center rounded-full bg-teal text-paper px-5 py-2.5 font-sans text-sm font-medium hover:opacity-90 transition"
+        >
+          Pasá a {planSiguiente.nombre} →
+        </button>
+      )}
+    </section>
   )
 }
 

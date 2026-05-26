@@ -114,7 +114,7 @@ export default function PanelPage() {
 
       <div className="max-w-3xl mx-auto px-5 py-8">
         {seccionActiva === 'resumen' && (
-          <SeccionResumen negocio={negocio} />
+          <SeccionResumen negocio={negocio} onIrASeccion={setSeccionActiva} />
         )}
         {seccionActiva === 'configuracion' && (
           <SeccionConfiguracion
@@ -126,7 +126,7 @@ export default function PanelPage() {
           <SeccionServicios negocio={negocio} />
         )}
         {seccionActiva === 'profesionales' && (
-          <SeccionProfesionales negocio={negocio} />
+          <SeccionProfesionales negocio={negocio} onIrASeccion={setSeccionActiva} />
         )}
         {seccionActiva === 'horarios' && (
           <SeccionHorarios
