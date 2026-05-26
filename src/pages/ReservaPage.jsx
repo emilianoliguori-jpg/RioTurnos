@@ -27,6 +27,7 @@ import Step3Fecha from '../components/reserva/Step3Fecha'
 import Step4Datos from '../components/reserva/Step4Datos'
 import StepPago from '../components/reserva/StepPago'
 import Step5Confirmacion from '../components/reserva/Step5Confirmacion'
+import PoweredByRioTurnos from '../components/comun/PoweredByRioTurnos'
 
 export default function ReservaPage() {
   const { slug } = useParams()
@@ -277,7 +278,10 @@ export default function ReservaPage() {
 function Layout({ children }) {
   return (
     <main className="min-h-screen bg-paper px-6 py-10">
-      <div className="max-w-md mx-auto">{children}</div>
+      <div className="max-w-md mx-auto">
+        {children}
+        <PoweredByRioTurnos />
+      </div>
     </main>
   )
 }

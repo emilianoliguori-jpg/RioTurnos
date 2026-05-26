@@ -2,9 +2,12 @@
 // El admin recibe la solicitud, verifica el pago, aprueba (Bloque 3),
 // y entonces el dueño puede loguearse en /panel.
 
+import LogoRiotech from '../comun/LogoRiotech'
+
 export default function ConfirmacionSolicitud({ email, onVolverInicio }) {
   return (
     <div className="text-center">
+      <LogoRiotech alto={28} className="opacity-80 mb-8" />
       <div
         className="w-14 h-14 rounded-full flex items-center justify-center mb-6 mx-auto bg-teal"
       >

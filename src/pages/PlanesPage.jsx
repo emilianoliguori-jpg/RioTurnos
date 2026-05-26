@@ -11,6 +11,7 @@ import { planesPublicos } from '../lib/planes'
 import TarjetaPlan from '../components/planes/TarjetaPlan'
 import FormSolicitud from '../components/planes/FormSolicitud'
 import ConfirmacionSolicitud from '../components/planes/ConfirmacionSolicitud'
+import LogoRiotech from '../components/comun/LogoRiotech'
 
 export default function PlanesPage() {
   // Login anónimo automático para poder subir comprobante y crear solicitud
@@ -70,10 +71,14 @@ function VistaPlanes({ planes, onElegirPlan, onIrAInicio }) {
         <button
           type="button"
           onClick={onIrAInicio}
-          className="font-sans text-xs uppercase tracking-widest text-ink/50 hover:text-ink mb-6"
+          aria-label="Río Tech"
+          className="inline-block mb-8 hover:opacity-80 transition"
         >
-          Río Turnos
+          <LogoRiotech alto={36} />
         </button>
+        <p className="font-sans text-xs uppercase tracking-widest text-ink/50 mb-3">
+          Río Turnos
+        </p>
         <h1 className="font-serif text-4xl sm:text-5xl text-ink font-light tracking-tight">
           Elegí tu plan
         </h1>

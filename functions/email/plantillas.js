@@ -139,7 +139,7 @@ function renderHtml({ nombreNegocio, titulo, mensaje, servicio, profesional, fec
         <tr>
           <td align="center" style="padding:24px 0 0;">
             <p style="margin:0;font:11px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F141966;">
-              Enviado por Río Turnos
+              con tecnología de Río Turnos
             </p>
           </td>
         </tr>
@@ -165,6 +165,6 @@ function renderText({ nombreNegocio, titulo, mensaje, servicio, profesional, fec
     `Hora: ${hora}`,
   ]
   if (direccion) lineas.push(`Dónde: ${direccion}`)
-  lineas.push('', '---', 'Enviado por Río Turnos')
+  lineas.push('', '---', 'con tecnología de Río Turnos')
   return lineas.join('\n')
 }
