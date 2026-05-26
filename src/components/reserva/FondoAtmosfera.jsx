@@ -1,210 +1,128 @@
-// Fondo atmosférico de la pantalla de reserva.
-// 3 variantes para comparar — el selector vive en ReservaPage.
+// Fondo atmosférico de la pantalla de reserva — variante oscura final.
 //
-//   A: paper + más presencia del acento (washes teal + cobre en movimiento)
-//   B: dark teal-deep + curvas luminosas teal-light + glow que respira
-//   C: paper con gradiente sutil + tres capas de "ríos" fluyendo (mi propuesta)
+// Composición:
+//   - Glow central pulsante teal-light (pulse-glow 7s)
+//   - Glow secundario abajo-derecha en copper-light (pulse-glow desfasado)
+//   - Tres ríos fluyendo horizontal con los TRES COLORES DEL LOGO de Río Tech:
+//       1. teal-light  #5EEAD4
+//       2. paper       #F5F1EA
+//       3. copper-light #FB923C
+//     Cada uno con riverFlow (translateX) + dash-flow (stroke-dashoffset).
+//     Distintas velocidades y direcciones para sensación de capas.
 //
-// Todo pointer-events: none, no interfiere con la interacción.
+// Todo pointer-events: none — decorativo, no interactivo.
 
-export default function FondoAtmosfera({ variante = 'A', colorAcento }) {
+const C_TEAL  = '#5EEAD4'
+const C_PAPER = '#F5F1EA'
+const C_COBRE = '#FB923C'
+
+export default function FondoAtmosfera() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {variante === 'A' && <VarianteA colorAcento={colorAcento} />}
-      {variante === 'B' && <VarianteB colorAcento={colorAcento} />}
-      {variante === 'C' && <VarianteC colorAcento={colorAcento} />}
-    </div>
-  )
-}
-
-// ────────────────────────────────────────────────────────────────────
-// A — paper + acento PROTAGÓNICO (más vida, más color, sin abandonar paper)
-// ────────────────────────────────────────────────────────────────────
-function VarianteA({ colorAcento }) {
-  return (
-    <>
-      {/* Wash del acento desde izquierda, recorre horizontal lento y visible */}
+      {/* Glow central pulsante (teal del logo) */}
       <div
-        className="absolute top-[15%] -left-32 w-[26rem] h-[26rem] rounded-full blur-3xl river-flow"
-        style={{ backgroundColor: colorAcento, opacity: 0.22 }}
+        className="absolute top-[28%] left-1/2 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full pulse-glow"
+        style={{ backgroundColor: C_TEAL, filter: 'blur(140px)' }}
       />
 
-      {/* Wash cobre desde derecha en dirección opuesta */}
+      {/* Glow secundario (cobre del logo), desfasado en el ciclo */}
       <div
-        className="absolute bottom-[12%] -right-32 w-[24rem] h-[24rem] rounded-full blur-3xl river-flow"
+        className="absolute -bottom-32 -right-24 w-[24rem] h-[24rem] rounded-full pulse-glow"
         style={{
-          backgroundColor: '#C2410C',
-          opacity: 0.18,
-          animationDelay: '-7s',
-          animationDirection: 'alternate-reverse',
-        }}
-      />
-
-      {/* Curva del acento en el centro, dasharray que corre como corriente */}
-      <svg
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-40"
-        viewBox="0 0 800 100"
-        fill="none"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M 0 60 Q 200 0 400 50 T 800 40"
-          stroke={colorAcento}
-          strokeWidth="2.5"
-          fill="none"
-          opacity="0.28"
-          className="dash-flow"
-        />
-      </svg>
-
-      {/* Grain suavísimo */}
-      <div className="absolute inset-0 bg-grain" style={{ opacity: 0.7 }} />
-    </>
-  )
-}
-
-// ────────────────────────────────────────────────────────────────────
-// B — DARK teal-deep + curvas luminosas teal-light
-// ────────────────────────────────────────────────────────────────────
-function VarianteB({ colorAcento }) {
-  return (
-    <>
-      {/* Glow central pulsante luminoso */}
-      <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] rounded-full pulse-glow"
-        style={{
-          backgroundColor: '#5EEAD4',
+          backgroundColor: C_COBRE,
           filter: 'blur(120px)',
-        }}
-      />
-
-      {/* Glow secundario abajo, con acento del negocio */}
-      <div
-        className="absolute -bottom-32 -right-20 w-[22rem] h-[22rem] rounded-full pulse-glow"
-        style={{
-          backgroundColor: colorAcento,
-          filter: 'blur(100px)',
-          opacity: 0.4,
+          opacity: 0.35,
           animationDelay: '-3.5s',
         }}
       />
 
-      {/* Tres curvas luminosas fluyendo horizontalmente con dasharray */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        viewBox="0 0 800 1200"
-        fill="none"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M -50 250 Q 200 150 400 280 T 850 250"
-          stroke="#5EEAD4"
-          strokeWidth="2"
-          fill="none"
-          opacity="0.4"
-          className="dash-flow"
-        />
-        <path
-          d="M -50 600 Q 200 500 400 630 T 850 600"
-          stroke="#5EEAD4"
-          strokeWidth="2"
-          fill="none"
-          opacity="0.32"
-          className="dash-flow"
-          style={{ animationDelay: '-4s', animationDuration: '13s' }}
-        />
-        <path
-          d="M -50 950 Q 200 850 400 980 T 850 950"
-          stroke="#5EEAD4"
-          strokeWidth="2"
-          fill="none"
-          opacity="0.25"
-          className="dash-flow"
-          style={{ animationDelay: '-7s', animationDuration: '16s' }}
-        />
-      </svg>
-      {/* B sin grain — sobre dark se ve como compresión */}
-    </>
-  )
-}
-
-// ────────────────────────────────────────────────────────────────────
-// C — MI PROPUESTA: paper + gradiente sutil + tres capas de "ríos" fluyendo
-// Editorial premium con la metáfora del nombre hecha visible.
-// ────────────────────────────────────────────────────────────────────
-function VarianteC({ colorAcento }) {
-  return (
-    <>
-      {/* Gradiente sutil paper → paper-tinted (sky-to-water feeling) */}
+      {/* Glow terciario sutil (paper warm), arriba izquierda */}
       <div
-        className="absolute inset-0"
+        className="absolute -top-20 -left-24 w-[20rem] h-[20rem] rounded-full pulse-glow"
         style={{
-          background:
-            'linear-gradient(180deg, #F5F1EA 0%, #F2EDE3 60%, #ECE5D7 100%)',
+          backgroundColor: C_PAPER,
+          filter: 'blur(140px)',
+          opacity: 0.18,
+          animationDelay: '-5s',
         }}
       />
 
-      {/* Tres capas de ríos, fluyendo a distinta velocidad y dirección */}
-      <svg
-        className="absolute top-[8%] left-0 w-full h-32 river-flow"
-        viewBox="0 0 800 100"
-        fill="none"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M -100 50 Q 200 -10 400 40 T 900 50"
-          stroke={colorAcento}
-          strokeWidth="2"
-          fill="none"
-          opacity="0.18"
-        />
-      </svg>
-
-      <svg
-        className="absolute top-[42%] left-0 w-full h-40 river-flow"
-        viewBox="0 0 800 100"
-        fill="none"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        style={{ animationDelay: '-5s', animationDirection: 'alternate-reverse' }}
-      >
-        <path
-          d="M -100 50 Q 250 10 500 60 T 900 50"
-          stroke={colorAcento}
-          strokeWidth="3.5"
-          fill="none"
-          opacity="0.13"
-        />
-      </svg>
-
-      <svg
-        className="absolute bottom-[12%] left-0 w-full h-32 river-flow"
-        viewBox="0 0 800 100"
-        fill="none"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        style={{ animationDelay: '-9s', animationDuration: '18s' }}
-      >
-        <path
-          d="M -100 50 Q 300 0 500 50 T 900 60"
-          stroke="#C2410C"
-          strokeWidth="5"
-          fill="none"
-          opacity="0.10"
-        />
-      </svg>
-
-      {/* Wash de acento muy difuso, deriva lentamente */}
-      <div
-        className="absolute top-[55%] left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] rounded-full blur-3xl flow-wash"
-        style={{ backgroundColor: colorAcento, opacity: 0.07 }}
+      {/* Río 1 — teal-light, arriba. Más rápido. */}
+      <Rio
+        topClass="top-[14%]"
+        color={C_TEAL}
+        strokeWidth={2.2}
+        opacity={0.45}
+        delayDash="-0s"
+        delayFlow="-1s"
+        durationFlow="11s"
       />
 
-      {/* Grain casi imperceptible */}
-      <div className="absolute inset-0 bg-grain" style={{ opacity: 0.5 }} />
-    </>
+      {/* Río 2 — paper, medio. Más grueso, ritmo intermedio, dirección opuesta. */}
+      <Rio
+        topClass="top-[45%]"
+        color={C_PAPER}
+        strokeWidth={3.5}
+        opacity={0.32}
+        delayDash="-4s"
+        delayFlow="-6s"
+        durationFlow="16s"
+        flowDirection="alternate-reverse"
+      />
+
+      {/* Río 3 — copper-light, abajo. Más lento y grueso, cierra la composición. */}
+      <Rio
+        topClass="bottom-[14%]"
+        color={C_COBRE}
+        strokeWidth={5}
+        opacity={0.28}
+        delayDash="-7s"
+        delayFlow="-3s"
+        durationFlow="20s"
+      />
+    </div>
+  )
+}
+
+// Una "línea de río" — SVG horizontal a un alto fijo, con translateX
+// continuo (riverFlow) y stroke-dashoffset también animado (dash-flow).
+// Stretching: preserveAspectRatio="none" deja el path estirarse al ancho.
+// vector-effect="non-scaling-stroke" mantiene el grosor constante en pixels
+// independientemente del stretch (importante mobile/desktop).
+function Rio({
+  topClass,
+  color,
+  strokeWidth,
+  opacity,
+  delayDash,
+  delayFlow,
+  durationFlow,
+  flowDirection = 'alternate',
+}) {
+  return (
+    <svg
+      className={`absolute left-0 w-full h-32 river-flow ${topClass}`}
+      style={{
+        animationDelay: delayFlow,
+        animationDuration: durationFlow,
+        animationDirection: flowDirection,
+      }}
+      viewBox="0 0 800 100"
+      fill="none"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M -100 50 Q 200 -10 400 50 T 900 50"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+        fill="none"
+        opacity={opacity}
+        className="dash-flow"
+        style={{ animationDelay: delayDash }}
+      />
+    </svg>
   )
 }

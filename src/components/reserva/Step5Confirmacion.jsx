@@ -1,6 +1,6 @@
-// Pantalla final — momento editorial. Sin StepHeader genérico: layout
-// propio centrado, "¡Listo!" o "Reserva en revisión" en serif monumental.
-// Datos como receipt minimalista con líneas finas.
+// Pantalla final — momento editorial.
+// Layout propio centrado: "¡Listo!" o "Reserva en revisión" monumental,
+// datos como receipt con líneas finas. Todo theme-aware (.t-*).
 
 import { formatearPrecio } from '../../lib/formato'
 
@@ -9,14 +9,14 @@ export default function Step5Confirmacion({ negocio, resumen, colorAcento }) {
 
   return (
     <section className="text-center pt-4">
-      {/* Línea decorativa arriba */}
-      <div className="editorial-divider mx-auto w-24 mb-10 text-ink reveal-up" />
+      {/* Línea decorativa arriba — usa currentColor → cambia con el tema */}
+      <div className="editorial-divider mx-auto w-24 mb-10 t-strong reveal-up" />
 
-      <p className="eyebrow text-ink/45 reveal-up">
+      <p className="eyebrow t-soft reveal-up">
         {pendiente ? 'Reserva en revisión' : 'Confirmado'}
       </p>
 
-      <h1 className="display-mono text-ink mt-5 text-[3.5rem] sm:text-[5rem] reveal-up delay-1">
+      <h1 className="display-mono t-strong mt-5 text-[3.5rem] sm:text-[5rem] reveal-up delay-1">
         {pendiente ? (
           <>
             Tomada<br />
@@ -32,7 +32,7 @@ export default function Step5Confirmacion({ negocio, resumen, colorAcento }) {
         )}
       </h1>
 
-      <p className="font-sans text-ink/60 text-base sm:text-lg mt-7 max-w-sm mx-auto leading-relaxed reveal-up delay-2">
+      <p className="font-sans t-body text-base sm:text-lg mt-7 max-w-sm mx-auto leading-relaxed reveal-up delay-2">
         {pendiente
           ? `Tu lugar quedó tomado. ${negocio.nombre} confirma tu pago en breve y te avisamos.`
           : `Te esperamos en ${negocio.nombre}.`}
@@ -58,7 +58,7 @@ export default function Step5Confirmacion({ negocio, resumen, colorAcento }) {
         )}
       </dl>
 
-      <p className="font-sans text-ink/45 text-xs mt-12 reveal-up delay-4">
+      <p className="font-sans t-soft text-sm mt-12 reveal-up delay-4">
         {pendiente
           ? 'Si todavía no enviaste el comprobante, hacelo por WhatsApp así verificamos rápido.'
           : 'Si necesitás cancelar o reprogramar, escribinos por WhatsApp.'}
@@ -69,13 +69,13 @@ export default function Step5Confirmacion({ negocio, resumen, colorAcento }) {
 
 function Fila({ etiqueta, valor, monumental = false, colorAcento }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-ink/10 pb-4">
-      <dt className="eyebrow text-ink/45 flex-shrink-0">{etiqueta}</dt>
+    <div className="flex items-baseline justify-between gap-4 border-b t-border pb-4">
+      <dt className="eyebrow t-soft flex-shrink-0">{etiqueta}</dt>
       <dd
         className={
           monumental
             ? 'display-mono text-3xl sm:text-4xl text-right'
-            : 'font-sans text-ink text-right'
+            : 'font-sans t-body text-right'
         }
         style={monumental ? { color: colorAcento } : {}}
       >

@@ -77,8 +77,8 @@ export default function Step3Fecha({
 
       {/* Día seleccionado MONUMENTAL */}
       <div className="my-8 sm:my-10 reveal-up delay-1">
-        <p className="eyebrow text-ink/45">{nombreDiaLargo}</p>
-        <p className="display-mono text-ink text-[3.5rem] sm:text-[4.5rem] mt-1 flex items-baseline gap-3">
+        <p className="eyebrow t-soft">{nombreDiaLargo}</p>
+        <p className="display-mono t-strong text-[3.5rem] sm:text-[4.5rem] mt-1 flex items-baseline gap-3">
           <span>{diaElegido.getDate()}</span>
           <span
             className="font-serif italic text-2xl sm:text-3xl font-light"
@@ -86,7 +86,7 @@ export default function Step3Fecha({
           >
             ·
           </span>
-          <span className="font-serif text-2xl sm:text-3xl text-ink/60 font-light">
+          <span className="font-serif text-2xl sm:text-3xl t-soft font-light">
             {nombreMes}
           </span>
         </p>
@@ -108,17 +108,40 @@ export default function Step3Fecha({
                   type="button"
                   disabled
                   aria-disabled
-                  className="rounded-2xl border border-ink/10 px-3.5 py-3 text-center cursor-not-allowed bg-paper"
+                  className="rounded-2xl border t-border t-surface-2 px-3.5 py-3 text-center cursor-not-allowed"
                   title="Cerrado"
                 >
-                  <p className="eyebrow text-ink/25">
+                  <p className="eyebrow t-faded">
                     {NOMBRES_DIAS_CORTOS[d.getDay()]}
                   </p>
-                  <p className="font-serif text-xl text-ink/25 font-light mt-1">
+                  <p className="font-serif text-xl t-faded font-light mt-1">
                     {d.getDate()}
                   </p>
-                  <p className="font-sans text-[9px] text-ink/30 mt-0.5 tracking-widest uppercase">
+                  <p className="font-sans text-[10px] t-faded mt-0.5 tracking-widest uppercase">
                     Cerrado
+                  </p>
+                </button>
+              )
+            }
+
+            if (seleccionado) {
+              return (
+                <button
+                  key={formatearFecha(d)}
+                  type="button"
+                  onClick={() => setDiaElegido(d)}
+                  className="card-editorial rounded-2xl border px-3.5 py-3 text-center transition"
+                  style={{
+                    backgroundColor: colorAcento,
+                    color: '#F5F1EA',
+                    borderColor: colorAcento,
+                  }}
+                >
+                  <p className="eyebrow" style={{ color: 'rgba(245,241,234,0.75)' }}>
+                    {NOMBRES_DIAS_CORTOS[d.getDay()]}
+                  </p>
+                  <p className="font-serif text-xl font-light mt-1">
+                    {d.getDate()}
                   </p>
                 </button>
               )
@@ -129,24 +152,12 @@ export default function Step3Fecha({
                 key={formatearFecha(d)}
                 type="button"
                 onClick={() => setDiaElegido(d)}
-                className="card-editorial rounded-2xl border px-3.5 py-3 text-center transition"
-                style={
-                  seleccionado
-                    ? {
-                        backgroundColor: colorAcento,
-                        color: '#F5F1EA',
-                        borderColor: colorAcento,
-                      }
-                    : { borderColor: 'rgba(15,20,25,0.12)', color: '#0F1419' }
-                }
+                className="card-editorial rounded-2xl border t-border t-surface px-3.5 py-3 text-center transition"
               >
-                <p
-                  className="eyebrow"
-                  style={{ color: seleccionado ? 'rgba(245,241,234,0.7)' : 'rgba(15,20,25,0.45)' }}
-                >
+                <p className="eyebrow t-soft">
                   {NOMBRES_DIAS_CORTOS[d.getDay()]}
                 </p>
-                <p className="font-serif text-xl font-light mt-1">
+                <p className="font-serif text-xl t-strong font-light mt-1">
                   {d.getDate()}
                 </p>
               </button>
@@ -157,11 +168,11 @@ export default function Step3Fecha({
 
       {/* Slots */}
       <div className="reveal-up delay-3">
-        <p className="eyebrow text-ink/45 mb-4">Horarios disponibles</p>
+        <p className="eyebrow t-soft mb-4">Horarios disponibles</p>
         {cargando ? (
-          <p className="font-sans text-ink/50 text-sm">Buscando…</p>
+          <p className="font-sans t-soft text-sm">Buscando…</p>
         ) : horariosLibres.length === 0 ? (
-          <p className="font-sans text-ink/60 text-sm">
+          <p className="font-sans t-soft text-sm">
             No hay horarios para este día. Probá otro.
           </p>
         ) : (
@@ -171,7 +182,7 @@ export default function Step3Fecha({
                 key={h}
                 type="button"
                 onClick={() => onElegir({ fecha: formatearFecha(diaElegido), hora: h })}
-                className="card-editorial rounded-2xl border border-ink/12 bg-white py-3.5 font-serif text-ink text-lg font-light transition hover:border-[var(--accent)] reveal-up"
+                className="card-editorial rounded-2xl border t-border t-surface py-3.5 font-serif t-strong text-lg font-light transition hover:border-[var(--accent)] reveal-up"
                 style={{ animationDelay: `${0.35 + Math.min(i, 11) * 0.025}s` }}
               >
                 {h}

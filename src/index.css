@@ -14,14 +14,78 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   REDISEÑO PANTALLA DE RESERVA (prueba con skill de diseño).
-   Maximalismo editorial: tipografía monumental, atmósfera, asimetría.
-   Si no convence, eliminar este bloque y revertir los componentes en
-   src/components/reserva/.
+   SISTEMA DE TEMA — fuente única de verdad de Río Turnos.
+   Default = light (paper). Aplicar .tema-oscuro a un ancestor activa el
+   tema oscuro en toda la subárbol.
+   USAR SIEMPRE las clases t-* (definidas abajo) en componentes nuevos en
+   lugar de hex hardcodeados / text-ink / bg-white. Eso hace que escalen
+   automáticamente al sumar otra pantalla al tema oscuro.
+   ════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Fondos */
+  --bg-app:           #F5F1EA;
+  --bg-surface:       #FFFFFF;
+  --bg-surface-soft:  rgba(15, 20, 25, 0.03);
+  --bg-hover:         rgba(15, 20, 25, 0.05);
+
+  /* Texto */
+  --text-strong:  rgba(15, 20, 25, 0.95);
+  --text-body:    rgba(15, 20, 25, 0.85);
+  --text-soft:    rgba(15, 20, 25, 0.68);
+  --text-faded:   rgba(15, 20, 25, 0.48);
+  --text-deco:    rgba(15, 20, 25, 0.15);
+
+  /* Bordes / divisores */
+  --border:         rgba(15, 20, 25, 0.12);
+  --border-strong:  rgba(15, 20, 25, 0.25);
+  --divider:        rgba(15, 20, 25, 0.18);
+}
+
+.tema-oscuro {
+  --bg-app:           #0F1F1E;
+  --bg-surface:       rgba(245, 241, 234, 0.05);
+  --bg-surface-soft:  rgba(245, 241, 234, 0.03);
+  --bg-hover:         rgba(245, 241, 234, 0.07);
+
+  --text-strong:  rgba(245, 241, 234, 0.96);
+  --text-body:    rgba(245, 241, 234, 0.88);
+  --text-soft:    rgba(245, 241, 234, 0.74);
+  --text-faded:   rgba(245, 241, 234, 0.55);
+  --text-deco:    rgba(245, 241, 234, 0.22);
+
+  --border:         rgba(245, 241, 234, 0.14);
+  --border-strong:  rgba(245, 241, 234, 0.30);
+  --divider:        rgba(245, 241, 234, 0.20);
+}
+
+/* Utilidades — usar SIEMPRE en lugar de bg-white, text-ink, border-ink/* */
+.t-app-bg      { background-color: var(--bg-app); }
+.t-surface     { background-color: var(--bg-surface); }
+.t-surface-2   { background-color: var(--bg-surface-soft); }
+.t-hover:hover { background-color: var(--bg-hover); }
+
+.t-strong { color: var(--text-strong); }
+.t-body   { color: var(--text-body); }
+.t-soft   { color: var(--text-soft); }
+.t-faded  { color: var(--text-faded); }
+.t-deco   { color: var(--text-deco); }
+
+.t-border    { border-color: var(--border); }
+.t-border-s  { border-color: var(--border-strong); }
+.t-bg-border { background-color: var(--border); }
+.t-bg-divider { background-color: var(--divider); }
+
+/* Compat: las antiguas .chrome-* quedan como aliases — preferir .t-* en nuevo código. */
+.chrome-eyebrow { color: var(--text-soft); }
+.chrome-soft    { color: var(--text-body); }
+.chrome-strong  { color: var(--text-strong); }
+
+/* ════════════════════════════════════════════════════════════════════════
+   REDISEÑO PANTALLA DE RESERVA (skill de diseño · variante oscura final).
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Grain SUAVE — textura de papel apenas perceptible. Opacidad baja para
-   evitar sensación de "ruido". Frecuencia más alta = textura más fina. */
+/* Grain SUAVE — textura sutil de papel. Casi imperceptible. */
 .bg-grain::before {
   content: '';
   position: absolute;
@@ -32,8 +96,7 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
-/* Stage = contenedor del paso actual. Fade-up suave al entrar.
-   El `key={paso}` en JSX dispara remount → la animación corre cada cambio. */
+/* Stage = contenedor del paso actual. Fade-up al entrar (cada cambio de paso). */
 @keyframes stageEnter {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: none; }
@@ -42,15 +105,12 @@
   animation: stageEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
-/* Reveal-up: pieza individual que aparece de abajo con desfase.
-   Combinar con delay-N para staggered choreography. */
+/* Reveal-up: pieza individual aparece de abajo con desfase. */
 @keyframes revealUp {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: none; }
 }
-.reveal-up {
-  animation: revealUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
+.reveal-up { animation: revealUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
 .delay-1 { animation-delay: 0.08s; }
 .delay-2 { animation-delay: 0.16s; }
 .delay-3 { animation-delay: 0.24s; }
@@ -60,60 +120,37 @@
 .delay-7 { animation-delay: 0.56s; }
 .delay-8 { animation-delay: 0.64s; }
 
-/* Flow drift — desplazamiento elegante (atmósfera general). 18s notable. */
+/* Flow drift — atmósfera general. */
 @keyframes flowDrift {
   0%   { transform: translate(0, 0) rotate(0deg); }
   50%  { transform: translate(-3%, 2%) rotate(2deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
-.flow-wash {
-  animation: flowDrift 18s ease-in-out infinite;
-}
+.flow-wash { animation: flowDrift 18s ease-in-out infinite; }
 
 /* River flow — movimiento horizontal CLARAMENTE PERCEPTIBLE.
-   Alternate = ida y vuelta sin saltos. 14s un sentido (28s ciclo). */
+   Alternate = ida y vuelta sin saltos. 14s un sentido (28s ciclo total). */
 @keyframes riverFlow {
   0%   { transform: translateX(-14%); }
   100% { transform: translateX(14%); }
 }
-.river-flow {
-  animation: riverFlow 14s ease-in-out infinite alternate;
-}
+.river-flow { animation: riverFlow 14s ease-in-out infinite alternate; }
 
-/* Pulse glow — brillo que respira (para puntos luminosos en variante oscura). */
+/* Pulse glow — brillo que respira (glows del tema oscuro). */
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.30; transform: scale(1); }
   50%      { opacity: 0.58; transform: scale(1.12); }
 }
-.pulse-glow {
-  animation: pulseGlow 7s ease-in-out infinite;
-}
+.pulse-glow { animation: pulseGlow 7s ease-in-out infinite; }
 
-/* Dash flow — punteado que corre por una curva SVG (corriente de río).
-   Aplicar a <path> con strokeDasharray ya definido. */
-@keyframes dashFlow {
-  to { stroke-dashoffset: -160; }
-}
+/* Dash flow — punteado que corre por una curva SVG (corriente). */
+@keyframes dashFlow { to { stroke-dashoffset: -160; } }
 .dash-flow {
   stroke-dasharray: 10 6;
   animation: dashFlow 10s linear infinite;
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   CHROME — texto fuera de cards, directo sobre el fondo.
-   Default = tema claro (paper). Override .tema-oscuro al final.
-   Subí los valores vs antes (eyebrow .50 → .68) para arreglar contraste. */
-.chrome-eyebrow { color: rgba(15, 20, 25, 0.68); }
-.chrome-soft    { color: rgba(15, 20, 25, 0.80); }
-.chrome-strong  { color: rgba(15, 20, 25, 0.92); }
-
-/* Variante B (tema oscuro) — invertimos para legibilidad sobre fondo dark. */
-.tema-oscuro .chrome-eyebrow { color: rgba(245, 241, 234, 0.62); }
-.tema-oscuro .chrome-soft    { color: rgba(245, 241, 234, 0.82); }
-.tema-oscuro .chrome-strong  { color: rgba(245, 241, 234, 0.95); }
-
-/* Card editorial — base para cualquier card seleccionable.
-   Hover: lift + sombra dramática asimétrica. Active: comprime. */
+/* Card editorial — base de cards seleccionables. */
 .card-editorial {
   transition:
     transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
@@ -124,16 +161,15 @@
 .card-editorial:hover {
   transform: translateY(-3px);
   box-shadow:
-    0 24px 48px -18px rgba(15, 20, 25, 0.18),
-    0 4px 12px -2px rgba(15, 20, 25, 0.06);
+    0 24px 48px -18px rgba(0, 0, 0, 0.35),
+    0 4px 12px -2px rgba(0, 0, 0, 0.15);
 }
 .card-editorial:active {
   transform: translateY(-1px) scale(0.997);
   transition-duration: 0.1s;
 }
 
-/* Número decorativo editorial — Fraunces italic display, opsz al máximo.
-   Ideal para los "01" "02" de las listas. */
+/* Número decorativo italic display. */
 .editorial-num {
   font-family: "Fraunces", Georgia, serif;
   font-style: italic;
@@ -143,7 +179,7 @@
   letter-spacing: -0.04em;
 }
 
-/* Display tipográfico monumental — para titulares "Confirmado", "26 / Mayo". */
+/* Display tipográfico monumental. */
 .display-mono {
   font-family: "Fraunces", Georgia, serif;
   font-weight: 300;
@@ -152,43 +188,38 @@
   line-height: 0.96;
 }
 
-/* Eyebrow editorial — tipografía sans pequeña con tracking amplio. */
+/* Eyebrow editorial — pequeña con tracking amplio.
+   Bumpeada a 11.5px (estaba 10px, le faltaba presencia en oscuro). */
 .eyebrow {
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 0.625rem;       /* 10px */
-  letter-spacing: 0.3em;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   font-weight: 500;
 }
 
-/* Floating label inputs (estilo periódico, sin borders box, solo underline).
-   Requiere que el <input> tenga placeholder=" " (space) para que
-   :placeholder-shown funcione. La <label> va INMEDIATAMENTE después del input. */
+/* Floating label inputs (sin border box, sólo underline).
+   USA VARIABLES DE TEMA → se adapta solo light/oscuro. */
 .float-input {
   width: 100%;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgba(15, 20, 25, 0.15);
-  padding: 1.25rem 0 0.5rem;
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 0 0.6rem;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 1.05rem;
-  color: #0F1419;
+  font-size: 1.1rem;
+  color: var(--text-strong);
   outline: none;
   transition: border-color 0.22s ease-out;
 }
-.float-input:focus {
-  border-bottom-color: var(--accent, #0B6E6E);
-}
-.float-input::placeholder {
-  color: transparent;
-}
+.float-input:focus { border-bottom-color: var(--accent, #0B6E6E); }
+.float-input::placeholder { color: transparent; }
 .float-label {
   position: absolute;
-  top: 1.25rem;
-  left: 0;
+  top: 1.25rem; left: 0;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 1.05rem;
-  color: rgba(15, 20, 25, 0.45);
+  font-size: 1.1rem;
+  color: var(--text-faded);
   pointer-events: none;
   transition:
     transform 0.22s ease-out,
@@ -199,13 +230,13 @@
 }
 .float-input:focus + .float-label,
 .float-input:not(:placeholder-shown) + .float-label {
-  transform: translateY(-1.1rem) scale(0.7);
-  letter-spacing: 0.15em;
+  transform: translateY(-1.1rem) scale(0.68);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent, #0B6E6E);
 }
 
-/* Divider editorial — línea con fade en los extremos. */
+/* Divider editorial — fade en los extremos. Usa currentColor. */
 .editorial-divider {
   height: 1px;
   background: linear-gradient(
@@ -215,5 +246,5 @@
     currentColor 75%,
     transparent
   );
-  opacity: 0.18;
+  opacity: 0.35;
 }

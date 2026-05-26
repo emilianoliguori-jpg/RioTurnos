@@ -1,8 +1,8 @@
-// Botón con el color de acento del negocio (que viene de Firestore, no es fijo).
-// Si está deshabilitado, se grisa.
-//
+// Botón con el color de acento del negocio (viene de Firestore, no es fijo).
 // Multi-tenant: el color cambia por negocio. Por eso va inline en lugar de
 // usar una clase Tailwind fija — Tailwind no puede generar clases dinámicas.
+//
+// La variante 'fantasma' usa clases t-* (theme) → se adapta a tema oscuro/claro.
 
 export default function BotonAcento({
   children,
@@ -23,7 +23,7 @@ export default function BotonAcento({
         type={type}
         onClick={onClick}
         disabled={disabled}
-        className={`${base} ${ancho} bg-transparent border border-ink/20 text-ink hover:bg-ink/5`}
+        className={`${base} ${ancho} bg-transparent border t-border-s t-body t-hover`}
       >
         {children}
       </button>

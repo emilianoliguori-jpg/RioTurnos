@@ -65,25 +65,25 @@ export default function StepPago({
       </div>
 
       {/* Alias */}
-      <div className="mt-4 rounded-2xl border border-ink/10 bg-white p-5">
-        <p className="font-sans text-ink/50 text-xs uppercase tracking-wider">
+      <div className="mt-4 rounded-2xl border t-border t-surface p-5">
+        <p className="font-sans t-soft text-xs uppercase tracking-wider">
           Alias para transferir
         </p>
-        <p className="font-serif text-2xl text-ink font-light mt-1 break-all">
+        <p className="font-serif text-2xl t-strong font-light mt-1 break-all">
           {negocio.aliasPago}
         </p>
         <button
           type="button"
           onClick={copiarAlias}
-          className="mt-3 rounded-full border border-ink/15 px-4 py-1.5 font-sans text-sm text-ink hover:bg-ink/5 transition"
+          className="mt-3 rounded-full border t-border-s px-4 py-1.5 font-sans text-sm t-body t-hover transition"
         >
           {aliasCopiado ? '¡Copiado!' : 'Copiar alias'}
         </button>
       </div>
 
       {/* Instrucción + WhatsApp */}
-      <div className="mt-4 rounded-2xl border border-ink/10 bg-white p-5 space-y-3">
-        <p className="font-sans text-ink text-sm">
+      <div className="mt-4 rounded-2xl border t-border t-surface p-5 space-y-3">
+        <p className="font-sans t-body text-sm">
           Transferí ese monto al alias y después mandanos el comprobante por WhatsApp.
         </p>
         {negocio.telefono && (
@@ -91,7 +91,7 @@ export default function StepPago({
             href={construirLinkWhatsapp(negocio, servicio, horario, monto)}
             target="_blank"
             rel="noreferrer noopener"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-4 py-2 font-sans text-sm text-ink hover:bg-ink/5 transition"
+            className="inline-flex items-center justify-center gap-2 rounded-full border t-border-s px-4 py-2 font-sans text-sm t-body t-hover transition"
           >
             <IconoWhatsapp />
             Mandar comprobante por WhatsApp
@@ -100,7 +100,7 @@ export default function StepPago({
 
         {/* Subida del comprobante (opcional — también pueden mandarlo por WhatsApp) */}
         <div>
-          <p className="font-sans text-ink/60 text-xs uppercase tracking-wider mb-2">
+          <p className="font-sans t-soft text-xs uppercase tracking-wider mb-2">
             O subí el comprobante acá (opcional)
           </p>
           <SubidorComprobante
@@ -139,7 +139,7 @@ export default function StepPago({
         )}
       </div>
 
-      <p className="font-sans text-ink/50 text-xs mt-4 text-center">
+      <p className="font-sans t-soft text-xs mt-4 text-center">
         {pagoObligatorio
           ? 'Tu turno queda reservado mientras verificamos el pago.'
           : 'Elegí cómo querés pagar. Tu turno queda reservado en los dos casos.'}
