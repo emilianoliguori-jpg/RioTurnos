@@ -36,6 +36,10 @@ export default function ReservaPage() {
   // reglas permitan crear turnos y subir comprobantes al cliente público.
   useGuestSession()
 
+  // Variante de fondo para comparación visual. Mecanismo temporal.
+  // Una vez elegida, se saca el SwitcherVariante y se hardcodea la elegida.
+  const [varianteFondo, setVarianteFondo] = useState('A')
+
   const [estadoCarga, setEstadoCarga] = useState({
     cargando: true,
     error: null,
@@ -204,14 +208,16 @@ export default function ReservaPage() {
   }
 
   return (
-    <Layout colorAcento={colorAcento}>
+    <Layout colorAcento={colorAcento} variante={varianteFondo}>
+      <SwitcherVariante valor={varianteFondo} onCambiar={setVarianteFondo} />
+
       {/* Chrome de la página: nombre del negocio + (opcional bienvenida) + progress */}
       <header className="mb-12">
-        <p className="eyebrow text-ink/50 reveal-up">
+        <p className="eyebrow chrome-eyebrow reveal-up">
           {negocio.nombre}
         </p>
         {paso === 1 && negocio.textos?.bienvenida && (
-          <p className="font-serif text-ink/70 text-base mt-3 max-w-xs italic font-light leading-snug reveal-up delay-1">
+          <p className="font-serif chrome-soft text-base mt-3 max-w-sm italic leading-snug reveal-up delay-1">
             {negocio.textos.bienvenida}
           </p>
         )}
@@ -284,17 +290,51 @@ export default function ReservaPage() {
 
 // Layout con atmósfera. Pasa colorAcento como CSS var para que cualquier
 // descendiente pueda usar `var(--accent)` (ej. floating labels, hovers).
-function Layout({ children, colorAcento = '#0B6E6E' }) {
+// La variante define el bg base y si aplica `.tema-oscuro` (invierte los
+// colores del chrome — chrome-eyebrow, chrome-soft, chrome-strong).
+function Layout({ children, colorAcento = '#0B6E6E', variante = 'A' }) {
+  const esOscuro = variante === 'B'
+  const bgColor = esOscuro ? '#0F1F1E' : '#F5F1EA' // teal-deep-casi-negro / paper
+
   return (
     <main
-      className="relative min-h-screen bg-paper overflow-hidden"
-      style={{ '--accent': colorAcento }}
+      className={`relative min-h-screen overflow-hidden ${esOscuro ? 'tema-oscuro' : ''}`}
+      style={{ '--accent': colorAcento, backgroundColor: bgColor }}
     >
-      <FondoAtmosfera colorAcento={colorAcento} />
+      <FondoAtmosfera variante={variante} colorAcento={colorAcento} />
       <div className="relative max-w-md mx-auto px-6 py-12 sm:py-16">
         {children}
         <PoweredByRioTurnos />
       </div>
     </main>
+  )
+}
+
+// Switcher temporal arriba a la derecha — sólo para que elijas la variante.
+// Se elimina después de decidir.
+function SwitcherVariante({ valor, onCambiar }) {
+  return (
+    <div
+      className="fixed top-3 right-3 z-50 flex gap-0.5 rounded-full bg-ink/85 backdrop-blur-md p-1 shadow-lg"
+      role="group"
+      aria-label="Variante de fondo (prueba)"
+    >
+      {['A', 'B', 'C'].map((v) => {
+        const activo = valor === v
+        return (
+          <button
+            key={v}
+            type="button"
+            onClick={() => onCambiar(v)}
+            className={`w-7 h-7 rounded-full text-[11px] font-sans font-medium transition ${
+              activo ? 'bg-paper text-ink' : 'text-paper/60 hover:text-paper'
+            }`}
+            aria-pressed={activo}
+          >
+            {v}
+          </button>
+        )
+      })}
+    </div>
   )
 }

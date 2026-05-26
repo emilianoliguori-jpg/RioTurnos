@@ -20,16 +20,16 @@
    src/components/reserva/.
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Grain sutil — textura de papel impreso. Para usar como overlay encima
-   de cualquier fondo plano (con .relative en el padre). */
+/* Grain SUAVE — textura de papel apenas perceptible. Opacidad baja para
+   evitar sensación de "ruido". Frecuencia más alta = textura más fina. */
 .bg-grain::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.45;
+  opacity: 0.22;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 /* Stage = contenedor del paso actual. Fade-up suave al entrar.
@@ -60,16 +60,57 @@
 .delay-7 { animation-delay: 0.56s; }
 .delay-8 { animation-delay: 0.64s; }
 
-/* Flow drift — wash que se mueve muy lento, como agua. Usado en el fondo
-   atmosférico para insinuar el "río" de la marca. */
+/* Flow drift — desplazamiento elegante (atmósfera general). 18s notable. */
 @keyframes flowDrift {
   0%   { transform: translate(0, 0) rotate(0deg); }
-  50%  { transform: translate(-2.5%, 2%) rotate(2deg); }
+  50%  { transform: translate(-3%, 2%) rotate(2deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 .flow-wash {
-  animation: flowDrift 24s ease-in-out infinite;
+  animation: flowDrift 18s ease-in-out infinite;
 }
+
+/* River flow — movimiento horizontal CLARAMENTE PERCEPTIBLE.
+   Alternate = ida y vuelta sin saltos. 14s un sentido (28s ciclo). */
+@keyframes riverFlow {
+  0%   { transform: translateX(-14%); }
+  100% { transform: translateX(14%); }
+}
+.river-flow {
+  animation: riverFlow 14s ease-in-out infinite alternate;
+}
+
+/* Pulse glow — brillo que respira (para puntos luminosos en variante oscura). */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.30; transform: scale(1); }
+  50%      { opacity: 0.58; transform: scale(1.12); }
+}
+.pulse-glow {
+  animation: pulseGlow 7s ease-in-out infinite;
+}
+
+/* Dash flow — punteado que corre por una curva SVG (corriente de río).
+   Aplicar a <path> con strokeDasharray ya definido. */
+@keyframes dashFlow {
+  to { stroke-dashoffset: -160; }
+}
+.dash-flow {
+  stroke-dasharray: 10 6;
+  animation: dashFlow 10s linear infinite;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   CHROME — texto fuera de cards, directo sobre el fondo.
+   Default = tema claro (paper). Override .tema-oscuro al final.
+   Subí los valores vs antes (eyebrow .50 → .68) para arreglar contraste. */
+.chrome-eyebrow { color: rgba(15, 20, 25, 0.68); }
+.chrome-soft    { color: rgba(15, 20, 25, 0.80); }
+.chrome-strong  { color: rgba(15, 20, 25, 0.92); }
+
+/* Variante B (tema oscuro) — invertimos para legibilidad sobre fondo dark. */
+.tema-oscuro .chrome-eyebrow { color: rgba(245, 241, 234, 0.62); }
+.tema-oscuro .chrome-soft    { color: rgba(245, 241, 234, 0.82); }
+.tema-oscuro .chrome-strong  { color: rgba(245, 241, 234, 0.95); }
 
 /* Card editorial — base para cualquier card seleccionable.
    Hover: lift + sombra dramática asimétrica. Active: comprime. */
