@@ -3,7 +3,8 @@
 // Cuando sumes a alguien, agregalo a este array.
 
 export const ADMINS_UIDS = [
-  'V3fmWq47WxYNeEvnjSbTbsLlhXE2', // Emiliano
+  'MeNAiyeN2lgOZMFmQyJYx2PxEWw2', // Río Tech · hola@riotech.ar
+  'V3fmWq47WxYNeEvnjSbTbsLlhXE2', // Emiliano · emilianoliguori@gmail.com
 ]
 
 export function esAdmin(uid) {

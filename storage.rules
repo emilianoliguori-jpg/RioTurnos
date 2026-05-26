@@ -9,7 +9,10 @@ service firebase.storage {
 
     function esAdmin() {
       return request.auth != null
-          && request.auth.uid in ['V3fmWq47WxYNeEvnjSbTbsLlhXE2'];
+          && request.auth.uid in [
+               'MeNAiyeN2lgOZMFmQyJYx2PxEWw2', // Río Tech · hola@riotech.ar
+               'V3fmWq47WxYNeEvnjSbTbsLlhXE2'  // Emiliano · emilianoliguori@gmail.com
+             ];
     }
 
     // Cross-service: lee la colección usuarios de Firestore para chequear
