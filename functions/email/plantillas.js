@@ -9,6 +9,9 @@
 //   - Max-width 600px (legibilidad en desktop) + responsive width: 100%
 //   - Incluir versión texto plano (accesibilidad + spam score)
 
+import { nombrePlan } from './planes.js'
+import { URL_LOGO_RIOTECH, URL_PANEL } from './config.js'
+
 const MESES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
@@ -167,4 +170,180 @@ function renderText({ nombreNegocio, titulo, mensaje, servicio, profesional, fec
   if (direccion) lineas.push(`Dónde: ${direccion}`)
   lineas.push('', '---', 'con tecnología de Río Turnos')
   return lineas.join('\n')
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// EMAILS DE RÍO TECH AL DUEÑO (solicitud recibida, suscripción aprobada).
+// Distinta identidad visual: logo Río Tech arriba, footer con datos de la
+// empresa. Tono: Río Tech le habla al dueño.
+// ════════════════════════════════════════════════════════════════════════
+
+// Chrome compartido (header con logo + body card + footer con info de empresa).
+function chromeRioTech({ titulo, contenidoHtml }) {
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>${titulo}</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F1EA;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F5F1EA;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;">
+
+        <!-- Header con logo Río Tech -->
+        <tr>
+          <td align="center" style="padding-bottom:24px;">
+            <img src="${URL_LOGO_RIOTECH}" alt="Río Tech" height="32" style="display:block;height:32px;width:auto;border:0;outline:none;text-decoration:none;" />
+          </td>
+        </tr>
+
+        <!-- Body card -->
+        <tr>
+          <td style="background:#ffffff;border-radius:16px;padding:32px 28px;">
+            ${contenidoHtml}
+          </td>
+        </tr>
+
+        <!-- Footer institucional -->
+        <tr>
+          <td align="center" style="padding:24px 0 0;">
+            <p style="margin:0;font:11px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F141966;">
+              Río Tech · Soluciones digitales · Rosario, Argentina<br/>
+              <a href="https://riotech.ar" style="color:#0B6E6E;text-decoration:none;">riotech.ar</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`
+}
+
+// ─── Solicitud recibida ───────────────────────────────────────────────
+
+export function plantillaSolicitudRecibida({ solicitud }) {
+  const nombre = solicitud.nombreDueno || ''
+  const plan = nombrePlan(solicitud.planKey)
+  const saludo = nombre ? `Hola ${esc(nombre)},` : 'Hola,'
+
+  const contenidoHtml = `
+    <h1 style="margin:0 0 16px;font:300 28px/1.2 Georgia,'Times New Roman',serif;color:#0F1419;letter-spacing:-0.5px;">
+      Recibimos tu solicitud
+    </h1>
+    <p style="margin:0 0 14px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F1419CC;">
+      ${saludo}
+    </p>
+    <p style="margin:0 0 14px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F1419CC;">
+      Recibimos tu solicitud para el plan
+      <strong style="color:#0F1419;">${esc(plan)}</strong>.
+      Está en revisión — estamos verificando tu pago.
+    </p>
+    <p style="margin:0 0 14px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F1419CC;">
+      En menos de <strong style="color:#0F1419;">24 hs hábiles</strong> te activamos
+      la cuenta y te avisamos por este mismo medio para que entres a tu panel.
+    </p>
+    <p style="margin:24px 0 0;font:13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F141999;">
+      Si tenés alguna duda mientras tanto, respondé a este mail.
+    </p>
+  `
+
+  const subject = 'Recibimos tu solicitud — Río Tech'
+  const html = chromeRioTech({ titulo: subject, contenidoHtml })
+
+  const text = [
+    'Río Tech',
+    '',
+    'Recibimos tu solicitud',
+    '',
+    saludo.replace(/&#39;/g, "'"),
+    '',
+    `Recibimos tu solicitud para el plan ${plan}. Está en revisión — estamos`,
+    'verificando tu pago.',
+    '',
+    'En menos de 24 hs hábiles te activamos la cuenta y te avisamos por este',
+    'mismo medio para que entres a tu panel.',
+    '',
+    'Si tenés alguna duda mientras tanto, respondé a este mail.',
+    '',
+    '---',
+    'Río Tech · Soluciones digitales · Rosario · riotech.ar',
+  ].join('\n')
+
+  return { subject, html, text }
+}
+
+// ─── Suscripción aprobada ──────────────────────────────────────────────
+
+export function plantillaSuscripcionAprobada({ solicitud }) {
+  const nombre = solicitud.nombreDueno || ''
+  const negocio = solicitud.nombreNegocio || ''
+  const plan = nombrePlan(solicitud.planKey)
+  const email = solicitud.email || ''
+  const saludo = nombre ? `Hola ${esc(nombre)},` : 'Hola,'
+
+  const contenidoHtml = `
+    <h1 style="margin:0 0 16px;font:300 28px/1.2 Georgia,'Times New Roman',serif;color:#0F1419;letter-spacing:-0.5px;">
+      ¡Tu cuenta está activa!
+    </h1>
+    <p style="margin:0 0 14px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F1419CC;">
+      ${saludo}
+    </p>
+    <p style="margin:0 0 24px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F1419CC;">
+      Aprobamos tu plan <strong style="color:#0F1419;">${esc(plan)}</strong>
+      para <strong style="color:#0F1419;">${esc(negocio)}</strong>.
+      Ya podés entrar al panel y empezar a cargar tus servicios, profesionales y horarios.
+    </p>
+
+    <!-- CTA button (bulletproof email button pattern) -->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" bgcolor="#0B6E6E" style="border-radius:100px;background:#0B6E6E;">
+          <a href="${URL_PANEL}"
+             style="display:inline-block;padding:14px 32px;font:500 15px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#F5F1EA;text-decoration:none;border-radius:100px;">
+            Entrar al panel →
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:24px 0 0;font:13px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F141999;">
+      Logueate con <strong style="color:#0F1419;">${esc(email)}</strong> usando tu cuenta de Google.
+      Tu negocio queda vinculado automáticamente.
+    </p>
+    <p style="margin:8px 0 0;font:13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F141999;">
+      Si tenés cualquier consulta, respondé a este mail.
+    </p>
+  `
+
+  const subject = '¡Tu cuenta de Río Turnos está activa!'
+  const html = chromeRioTech({ titulo: subject, contenidoHtml })
+
+  const text = [
+    'Río Tech',
+    '',
+    '¡Tu cuenta está activa!',
+    '',
+    saludo.replace(/&#39;/g, "'"),
+    '',
+    `Aprobamos tu plan ${plan} para ${negocio}. Ya podés entrar al panel y`,
+    'empezar a cargar tus servicios, profesionales y horarios.',
+    '',
+    `Entrar al panel: ${URL_PANEL}`,
+    '',
+    `Logueate con ${email} usando tu cuenta de Google. Tu negocio queda`,
+    'vinculado automáticamente.',
+    '',
+    'Si tenés cualquier consulta, respondé a este mail.',
+    '',
+    '---',
+    'Río Tech · Soluciones digitales · Rosario · riotech.ar',
+  ].join('\n')
+
+  return { subject, html, text }
 }
