@@ -18,6 +18,7 @@ import SeccionProfesionales from '../components/panel/SeccionProfesionales'
 import SeccionHorarios from '../components/panel/SeccionHorarios'
 import SeccionAgenda from '../components/panel/SeccionAgenda'
 import SeccionSuscripcion from '../components/panel/SeccionSuscripcion'
+import SeccionAyuda from '../components/panel/SeccionAyuda'
 
 export default function PanelPage() {
   const { usuario, cargandoVinculacion } = useAuth()
@@ -139,6 +140,9 @@ export default function PanelPage() {
         )}
         {seccionActiva === 'suscripcion' && (
           <SeccionSuscripcion negocio={negocio} />
+        )}
+        {seccionActiva === 'ayuda' && (
+          <SeccionAyuda negocio={negocio} />
         )}
       </div>
     </div>

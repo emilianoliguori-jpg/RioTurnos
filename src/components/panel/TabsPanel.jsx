@@ -10,6 +10,7 @@ const SECCIONES = [
   { key: 'horarios',      label: 'Horarios' },
   { key: 'agenda',        label: 'Agenda' },
   { key: 'suscripcion',   label: 'Mi suscripción' },
+  { key: 'ayuda',         label: 'Ayuda' },
 ]
 
 export default function TabsPanel({ activa, onCambiar, colorAcento = '#0B6E6E' }) {
