@@ -13,3 +13,7 @@ export function esAdmin(uid) {
 // Alias de pago de Río Tech (usado en la página de planes para que los nuevos
 // clientes transfieran la suscripción mensual). Configurable.
 export const ALIAS_RIOTECH = 'riotech.suscripciones'
+
+// WhatsApp de Río Tech (para que el dueño avise pagos y consultas).
+// Formato wa.me: solo dígitos, con código país (54), 9 para móvil Argentina.
+export const WHATSAPP_RIOTECH = '5493413220502'

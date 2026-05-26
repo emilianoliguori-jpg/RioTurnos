@@ -62,6 +62,25 @@ service cloud.firestore {
           && d.planKey is string;
     }
 
+    // Campos del negocio que SÓLO admin puede modificar:
+    //   - ultimoPagoMes: el admin marca tras verificar la transferencia.
+    //     Si fuera escribible por el dueño, podría auto-marcarse pagado.
+    //   - plan, estado: definen la suscripción y vigencia comercial.
+    //   - emailDuenoAutorizado: vincula el negocio a un email.
+    //   - creadoEn, slug: campos de identidad del documento.
+    // El dueño puede editar todo el resto (nombre, color, horarios, etc.).
+    function tocaCamposSoloAdmin(req, res) {
+      return req.resource.data.diff(res.data).affectedKeys()
+                .hasAny([
+                  'ultimoPagoMes',
+                  'plan',
+                  'estado',
+                  'emailDuenoAutorizado',
+                  'creadoEn',
+                  'slug',
+                ]);
+    }
+
     // ─────────────────────────────────────────────────────────────────
     // NEGOCIOS
     // ─────────────────────────────────────────────────────────────────
@@ -69,8 +88,13 @@ service cloud.firestore {
     match /negocios/{slug} {
       // Lectura PÚBLICA: el flujo público de reserva la necesita.
       allow read: if true;
-      // Sólo el dueño vinculado o un admin tocan el negocio.
-      allow create, update, delete: if esAdmin() || esDuenoDe(slug);
+      // Crear / borrar negocios: en la práctica sólo admin (esDuenoDe exige
+      // que el slug ya esté en negociosIds del usuario — imposible en create).
+      allow create, delete: if esAdmin() || esDuenoDe(slug);
+      // Update: admin puede todo; el dueño puede todo EXCEPTO los campos
+      // administrativos. Defensa contra DevTools / API directa.
+      allow update: if esAdmin()
+                    || (esDuenoDe(slug) && !tocaCamposSoloAdmin(request, resource));
 
       // Servicios y profesionales: misma lógica.
       match /servicios/{id} {
