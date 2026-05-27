@@ -9,6 +9,7 @@ import { formatearPrecio } from '../../lib/formato'
 import { limitesDePlan, planSiguiente } from '../../lib/limitesPlan'
 
 import Metrica from '../comun/Metrica'
+import BloqueLinkReservas from './BloqueLinkReservas'
 
 export default function SeccionResumen({ negocio, onIrASeccion }) {
   const colorAcento = negocio.colorAcento || '#0B6E6E'
@@ -38,84 +39,89 @@ export default function SeccionResumen({ negocio, onIrASeccion }) {
     return () => { cancelado = true }
   }, [negocio.id])
 
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-copper bg-copper/5 p-5">
-        <p className="font-sans text-copper text-sm">{error}</p>
-      </div>
-    )
-  }
-
-  if (stats === null) {
-    return (
-      <div className="rounded-2xl border border-ink/10 bg-white p-10 text-center">
-        <p className="font-sans text-ink/50 text-sm">Cargando resumen…</p>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-10">
-      {/* 1. Próximos turnos de hoy */}
-      <section>
-        <h2 className="font-serif text-2xl text-ink font-light mb-4">
-          Próximos turnos de hoy
-        </h2>
-        <ProximosTurnosHoy turnos={stats.proximosHoy} />
-      </section>
+      {/* 0. Link público de reservas — siempre visible, lo más importante para
+          que el dueño pueda compartirlo apenas entra al panel. No depende de
+          stats, por eso va antes de los early-returns de loading/error. */}
+      <BloqueLinkReservas negocio={negocio} />
 
-      {/* 2. Actividad del mes */}
-      <section>
-        <h2 className="font-serif text-2xl text-ink font-light mb-4">
-          Actividad del mes
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Metrica label="Total"       valor={stats.total}        colorValor={colorAcento} />
-          <Metrica label="Atendidos"   valor={stats.atendidos}    colorValor="#0B6E6E" />
-          <Metrica label="Confirmados" valor={stats.confirmados}  colorValor="#0F1419" />
-          <Metrica label="Cancelados"  valor={stats.cancelados}   colorValor="#7B2D3A" />
+      {error && (
+        <div className="rounded-2xl border border-copper bg-copper/5 p-5">
+          <p className="font-sans text-copper text-sm">{error}</p>
         </div>
-      </section>
+      )}
 
-      {/* 3 + 4. Ingresos + Top servicios — sólo si el plan los incluye.
-          Si el plan es Inicial (dashboardCompleto: false), una sola card
-          de upgrade reemplaza ambas secciones. */}
-      {dashboardCompleto ? (
+      {!error && stats === null && (
+        <div className="rounded-2xl border border-ink/10 bg-white p-10 text-center">
+          <p className="font-sans text-ink/50 text-sm">Cargando resumen…</p>
+        </div>
+      )}
+
+      {!error && stats !== null && (
         <>
-          {cobroActivado && (
-            <section>
-              <h2 className="font-serif text-2xl text-ink font-light mb-4">
-                Ingresos del mes
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <CardIngreso
-                  etiqueta="Cobrado este mes"
-                  monto={stats.ingresoCobrado}
-                  variante="teal"
-                  hint="Plata que ya entró (turnos confirmados o atendidos)."
-                />
-                <CardIngreso
-                  etiqueta="Por confirmar"
-                  monto={stats.ingresoPorConfirmar}
-                  variante="copper"
-                  hint="Reservaron y dicen que transfirieron, pero todavía no verificaste el pago."
-                />
-              </div>
-            </section>
-          )}
-
+          {/* 1. Próximos turnos de hoy */}
           <section>
             <h2 className="font-serif text-2xl text-ink font-light mb-4">
-              Top servicios del mes
+              Próximos turnos de hoy
             </h2>
-            <TopServicios items={stats.topServicios} />
+            <ProximosTurnosHoy turnos={stats.proximosHoy} />
           </section>
+
+          {/* 2. Actividad del mes */}
+          <section>
+            <h2 className="font-serif text-2xl text-ink font-light mb-4">
+              Actividad del mes
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Metrica label="Total"       valor={stats.total}        colorValor={colorAcento} />
+              <Metrica label="Atendidos"   valor={stats.atendidos}    colorValor="#0B6E6E" />
+              <Metrica label="Confirmados" valor={stats.confirmados}  colorValor="#0F1419" />
+              <Metrica label="Cancelados"  valor={stats.cancelados}   colorValor="#7B2D3A" />
+            </div>
+          </section>
+
+          {/* 3 + 4. Ingresos + Top servicios — sólo si el plan los incluye.
+              Si el plan es Inicial (dashboardCompleto: false), una sola card
+              de upgrade reemplaza ambas secciones. */}
+          {dashboardCompleto ? (
+            <>
+              {cobroActivado && (
+                <section>
+                  <h2 className="font-serif text-2xl text-ink font-light mb-4">
+                    Ingresos del mes
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <CardIngreso
+                      etiqueta="Cobrado este mes"
+                      monto={stats.ingresoCobrado}
+                      variante="teal"
+                      hint="Plata que ya entró (turnos confirmados o atendidos)."
+                    />
+                    <CardIngreso
+                      etiqueta="Por confirmar"
+                      monto={stats.ingresoPorConfirmar}
+                      variante="copper"
+                      hint="Reservaron y dicen que transfirieron, pero todavía no verificaste el pago."
+                    />
+                  </div>
+                </section>
+              )}
+
+              <section>
+                <h2 className="font-serif text-2xl text-ink font-light mb-4">
+                  Top servicios del mes
+                </h2>
+                <TopServicios items={stats.topServicios} />
+              </section>
+            </>
+          ) : (
+            <CardUpgradeDashboard
+              planSiguiente={planSig}
+              onIrASuscripcion={() => onIrASeccion?.('suscripcion')}
+            />
+          )}
         </>
-      ) : (
-        <CardUpgradeDashboard
-          planSiguiente={planSig}
-          onIrASuscripcion={() => onIrASeccion?.('suscripcion')}
-        />
       )}
     </div>
   )
