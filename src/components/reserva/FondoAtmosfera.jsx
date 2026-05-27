@@ -18,7 +18,7 @@ const C_COBRE = '#FB923C'
 
 export default function FondoAtmosfera() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       {/* Glow central pulsante (teal del logo) */}
       <div
         className="absolute top-[28%] left-1/2 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full pulse-glow"
@@ -52,7 +52,7 @@ export default function FondoAtmosfera() {
         topClass="top-[14%]"
         color={C_TEAL}
         strokeWidth={2.2}
-        opacity={0.45}
+        opacity={0.16}
         delayDash="-0s"
         delayFlow="-1s"
         durationFlow="11s"
@@ -63,7 +63,7 @@ export default function FondoAtmosfera() {
         topClass="top-[45%]"
         color={C_PAPER}
         strokeWidth={3.5}
-        opacity={0.32}
+        opacity={0.10}
         delayDash="-4s"
         delayFlow="-6s"
         durationFlow="16s"
@@ -75,7 +75,7 @@ export default function FondoAtmosfera() {
         topClass="bottom-[14%]"
         color={C_COBRE}
         strokeWidth={5}
-        opacity={0.28}
+        opacity={0.10}
         delayDash="-7s"
         delayFlow="-3s"
         durationFlow="20s"
