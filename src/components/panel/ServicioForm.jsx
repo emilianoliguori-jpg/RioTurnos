@@ -4,8 +4,15 @@
 
 import { useState } from 'react'
 import CampoTexto from './CampoTexto'
+import { ICONOS_SERVICIO, ICONO_DEFAULT_ID } from '../../lib/iconosServicio'
 
-const VACIO = { nombre: '', duracionMinutos: 30, precio: 0, activo: true }
+const VACIO = {
+  nombre: '',
+  duracionMinutos: 30,
+  precio: 0,
+  activo: true,
+  icono: ICONO_DEFAULT_ID,
+}
 
 export default function ServicioForm({
   valorInicial = null,
@@ -13,7 +20,11 @@ export default function ServicioForm({
   onCancelar,
   etiquetaServicio = 'servicio',
 }) {
-  const [form, setForm] = useState(valorInicial || VACIO)
+  // Merge con VACIO para que servicios legacy (sin campo 'icono') tomen el
+  // default sin pisar el resto de los campos guardados.
+  const [form, setForm] = useState(
+    valorInicial ? { ...VACIO, ...valorInicial } : VACIO
+  )
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -37,6 +48,7 @@ export default function ServicioForm({
         duracionMinutos: Number(form.duracionMinutos),
         precio:          Number(form.precio),
         activo:          Boolean(form.activo),
+        icono:           form.icono || ICONO_DEFAULT_ID,
       })
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -78,6 +90,36 @@ export default function ServicioForm({
           onChange={(v) => set('precio', v)}
           error={precioInvalido ? 'Inválido.' : null}
         />
+      </div>
+
+      <div>
+        <p className="font-sans text-sm text-ink/70 mb-2">Icono</p>
+        <div className="grid grid-cols-5 sm:grid-cols-8 gap-2">
+          {ICONOS_SERVICIO.map(({ id, label, Icon }) => {
+            const seleccionado = form.icono === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => set('icono', id)}
+                title={label}
+                aria-label={label}
+                aria-pressed={seleccionado}
+                className={[
+                  'aspect-square rounded-xl border flex items-center justify-center transition-colors',
+                  seleccionado
+                    ? 'bg-teal border-teal text-paper shadow-sm'
+                    : 'bg-white border-ink/15 text-ink/60 hover:bg-ink/5 hover:border-ink/30 hover:text-ink',
+                ].join(' ')}
+              >
+                <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            )
+          })}
+        </div>
+        <p className="font-sans text-xs text-ink/50 mt-2">
+          Aparece en la pantalla de reservas, al lado del nombre del {etiquetaServicio}.
+        </p>
       </div>
 
       <label className="inline-flex items-center gap-2 cursor-pointer">
