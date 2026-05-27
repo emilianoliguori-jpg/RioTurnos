@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Río Turnos — Carrusel Instagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   RÍO TURNOS — Carrusel Instagram (8 slides · 1080×1350 cada uno)
+
+   COMO EXPORTAR PARA INSTAGRAM:
+   1. Abrí este archivo en Chrome.
+   2. Pulsá F12 → Toggle device toolbar (Ctrl+Shift+M).
+   3. Setear viewport custom: 1080 × 1350.
+   4. Para cada slide, hacé scroll, después en DevTools menú "⋮" elegí
+      "Capture full size screenshot" (o usá una extensión tipo GoFullPage).
+   5. Alternativa rápida: scrolleás, Win+Shift+S y recortás cada slide.
+
+   Las dimensiones de cada slide son EXACTAS para Instagram 4:5 (1080×1350).
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-deep:     #0F1F1E;
+  --bg-soft:     #15292A;
+  --paper:       #F5F1EA;
+  --paper-soft:  rgba(245, 241, 234, 0.74);
+  --paper-faded: rgba(245, 241, 234, 0.45);
+  --paper-deco:  rgba(245, 241, 234, 0.18);
+  --teal:        #5EEAD4;
+  --teal-deep:   #0B6E6E;
+  --copper:      #FB923C;
+  --copper-deep: #C2410C;
+  --grain-url:   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #18181a;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+body {
+  padding: 64px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+.preview-header {
+  color: rgba(255,255,255,0.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  max-width: 1080px;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.slide {
+  width: 1080px;
+  height: 1350px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+  isolation: isolate;
+}
+
+/* Reserva de espacio inferior para el brand-strip (logo Río Tech + web).
+   El strip vive en `bottom: 38px` y mide ~80px de alto. Garantizamos al
+   menos ~60px de aire entre el contenido y el strip aumentando el
+   padding-bottom de todos los slides con !important — así no tenemos que
+   sobrescribir el padding shorthand en cada definición individual. El
+   slide 9 (cierre) NO usa brand-strip (tiene colofón propio), así que
+   resetea su padding-bottom con un override local más abajo. */
+.slide { padding-bottom: 190px !important; }
+.slide-8 { padding-bottom: 120px !important; }
+
+/* Grain texture — capa universal, sutil */
+.slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-url);
+  opacity: 0.45;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* ─── Tipografía utilities ─────────────────────────────────────────── */
+.h-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+}
+.h-display-italic {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 300;
+  font-style: italic;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+.eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--paper-soft);
+}
+.body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 28px;
+  line-height: 1.45;
+  color: var(--paper-soft);
+}
+
+/* ─── Decorativo: "ríos" de fondo (variantes por slide) ─────────────── */
+.river {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  height: 200px;
+  z-index: 1;
+  pointer-events: none;
+}
+.river path { fill: none; vector-effect: non-scaling-stroke; }
+
+/* ─── Brand strip: logo Río Tech + web ──────────────────────────────────
+   Va en TODOS los slides (1-7) como branding paraguas discreto. Posición
+   absoluta al pie de cada placa, opacidad reducida para que no compita
+   con el contenido principal. En el slide 8 (cierre) se usa el logo a
+   tamaño mayor dentro del colofón, no el strip. */
+.brand-strip {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 40;
+  opacity: 0.85;
+}
+/* El PNG ya viene con la composición correcta: texto en blanco + ícono
+   en color. Sin filtros — los aplicaríamos solo si necesitáramos forzar
+   monocromía, pero perderíamos el detalle de color del isotipo. */
+.brand-strip img {
+  height: 52px;
+  width: auto;
+  display: block;
+}
+.brand-strip .web {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--paper-soft);
+  font-weight: 500;
+}
+
+/* ─── Wordmark Río Turnos (logo del producto) ──────────────────────────
+   El producto no tenía logo propio — lo definimos acá como wordmark
+   tipográfico para que conviva como hermano del logo Río Tech. Misma
+   familia visual: Fraunces italic 300, dot teal con glow como detalle
+   identificatorio. Reusable en cualquier slide. */
+.rt-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-variation-settings: "opsz" 144;
+  color: var(--paper);
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+.rt-wordmark::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background: var(--teal);
+  border-radius: 999px;
+  box-shadow:
+    0 0 24px rgba(94, 234, 212, 0.7),
+    0 0 0 1px rgba(94, 234, 212, 0.3);
+  flex-shrink: 0;
+}
+.rt-wordmark.size-l { font-size: 72px; }
+.rt-wordmark.size-m { font-size: 44px; }
+.rt-wordmark.size-s { font-size: 28px; }
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 1 — HOOK
+   ════════════════════════════════════════════════════════════════════ */
+.slide-1 {
+  padding: 96px 96px 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.slide-1 .river-top { top: 8%; }
+.slide-1 .river-bottom { bottom: 12%; transform: scaleX(-1); }
+.slide-1 .top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  z-index: 5;
+  position: relative;
+}
+.slide-1 .top-bar .num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  color: var(--paper-faded);
+}
+.slide-1 .main {
+  z-index: 5;
+  position: relative;
+}
+.slide-1 .main h1 {
+  font-size: 156px;
+  color: var(--paper);
+}
+.slide-1 .main h1 em {
+  color: var(--copper);
+  font-style: italic;
+  font-weight: 400;
+}
+.slide-1 .footer {
+  z-index: 5;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+.slide-1 .footer p {
+  font-size: 36px;
+  color: var(--paper-soft);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  max-width: 540px;
+  line-height: 1.2;
+}
+.slide-1 .footer .accent-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 999px;
+  background: var(--copper);
+  box-shadow: 0 0 80px rgba(251, 146, 60, 0.5);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 2 — EL DOLOR (chat bubbles editorial)
+   ════════════════════════════════════════════════════════════════════ */
+.slide-2 {
+  padding: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+.slide-2 .eyebrow-row {
+  display: flex;
+  justify-content: space-between;
+}
+.slide-2 h2 {
+  font-size: 116px;
+  color: var(--paper);
+}
+.slide-2 h2 em {
+  font-style: italic;
+  color: var(--paper-soft);
+  font-weight: 300;
+}
+.slide-2 .chats {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 24px;
+}
+.slide-2 .bubble {
+  background: var(--bg-soft);
+  border: 1px solid rgba(245,241,234,0.08);
+  border-radius: 28px;
+  padding: 28px 36px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 32px;
+  color: var(--paper);
+  max-width: 70%;
+  position: relative;
+  z-index: 5;
+}
+.slide-2 .bubble .time {
+  display: block;
+  font-size: 18px;
+  color: var(--paper-faded);
+  margin-top: 8px;
+  letter-spacing: 0.05em;
+}
+.slide-2 .bubble.a { align-self: flex-start; }
+.slide-2 .bubble.b { align-self: flex-start; margin-left: 80px; }
+.slide-2 .bubble.c { align-self: flex-start; margin-left: 160px; }
+.slide-2 .footnote {
+  margin-top: auto;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 30px;
+  color: var(--paper-soft);
+  border-top: 1px solid rgba(245,241,234,0.12);
+  padding-top: 32px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 3 — PIVOT (la solución aparece)
+   ════════════════════════════════════════════════════════════════════ */
+.slide-3 {
+  padding: 120px 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+.slide-3 .eyebrow { color: var(--teal); }
+.slide-3 h2 {
+  font-size: 148px;
+  color: var(--paper);
+  margin-top: 36px;
+}
+.slide-3 h2 em {
+  font-style: italic;
+  color: var(--teal);
+  font-weight: 400;
+}
+.slide-3 .link-card {
+  margin: 56px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  background: rgba(94, 234, 212, 0.08);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  padding: 36px 56px;
+  border-radius: 24px;
+  position: relative;
+  z-index: 5;
+}
+.slide-3 .link-card .dot {
+  width: 14px; height: 14px;
+  background: var(--teal);
+  border-radius: 999px;
+  box-shadow: 0 0 24px var(--teal);
+}
+.slide-3 .link-card .url {
+  font-family: 'DM Sans', monospace;
+  font-size: 38px;
+  color: var(--paper);
+  letter-spacing: -0.01em;
+}
+.slide-3 .link-card .url .slug {
+  color: var(--copper);
+}
+.slide-3 .footer-text {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 38px;
+  color: var(--paper-soft);
+  line-height: 1.25;
+  max-width: 720px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 4 — SHOWCASE: pantalla de servicios
+   ════════════════════════════════════════════════════════════════════ */
+.slide-4 {
+  padding: 96px;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 64px;
+  align-items: center;
+}
+.slide-4 .copy { z-index: 5; }
+.slide-4 .copy .eyebrow { color: var(--teal); }
+.slide-4 .copy h2 {
+  font-size: 104px;
+  color: var(--paper);
+  margin-top: 28px;
+}
+.slide-4 .copy h2 em {
+  font-style: italic;
+  color: var(--paper-soft);
+  font-weight: 300;
+}
+.slide-4 .copy p {
+  margin-top: 40px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 32px;
+  color: var(--paper-soft);
+  line-height: 1.35;
+  max-width: 420px;
+}
+
+/* ─── Mockup celular ────────────────────────────────────────────────── */
+.phone {
+  width: 380px;
+  height: 780px;
+  background: var(--bg-deep);
+  border: 8px solid #1f2a2b;
+  border-radius: 52px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 50px 80px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px #2a3536;
+  justify-self: center;
+  z-index: 5;
+  transform: rotate(-2deg);
+}
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 26px;
+  background: #000;
+  border-radius: 16px;
+  z-index: 10;
+}
+.phone .screen {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-deep);
+  overflow: hidden;
+  padding: 70px 18px 18px;
+}
+/* River dentro del phone */
+.phone .screen::before, .phone .screen::after {
+  content: '';
+  position: absolute;
+  left: -20%;
+  width: 140%;
+  height: 80px;
+  pointer-events: none;
+}
+.phone .screen::before {
+  top: 18%;
+  background: radial-gradient(50% 100% at 50% 50%, rgba(94,234,212,0.10), transparent 70%);
+}
+.phone .screen::after {
+  bottom: 22%;
+  background: radial-gradient(50% 100% at 50% 50%, rgba(251,146,60,0.08), transparent 70%);
+}
+.phone .step-header {
+  text-align: left;
+  margin-bottom: 14px;
+  padding: 0 8px;
+}
+.phone .step-header .eyebrow-mini {
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--paper-faded);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.phone .step-header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 26px;
+  color: var(--paper);
+  margin-top: 6px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.phone .step-header h3 em { font-style: italic; }
+.phone ul.servicios {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.phone ul.servicios li {
+  background: rgba(245, 241, 234, 0.05);
+  border: 1px solid rgba(245, 241, 234, 0.14);
+  border-radius: 18px;
+  padding: 14px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.phone .ord {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--paper-faded);
+  opacity: 0.5;
+  min-width: 18px;
+}
+.phone .icon-slot {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone .icon-slot svg {
+  width: 22px; height: 22px;
+  color: var(--teal);
+  stroke: var(--teal);
+  fill: none;
+  stroke-width: 1.75;
+}
+.phone .info { flex: 1; min-width: 0; }
+.phone .info .nombre {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--paper);
+  line-height: 1.1;
+}
+.phone .info .dur {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: var(--paper-soft);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.phone .precio {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--copper);
+  white-space: nowrap;
+}
+.phone .chev {
+  color: var(--paper-soft);
+  font-size: 18px;
+  line-height: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 5 — SHOWCASE: calendario / horarios (mirror del 4)
+   ════════════════════════════════════════════════════════════════════ */
+.slide-5 {
+  padding: 96px;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.slide-5 .copy { z-index: 5; }
+.slide-5 .copy .eyebrow { color: var(--copper); }
+.slide-5 .copy h2 {
+  font-size: 104px;
+  color: var(--paper);
+  margin-top: 28px;
+}
+.slide-5 .copy h2 em {
+  font-style: italic;
+  color: var(--paper-soft);
+  font-weight: 300;
+}
+.slide-5 .copy p {
+  margin-top: 40px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 32px;
+  color: var(--paper-soft);
+  line-height: 1.35;
+  max-width: 420px;
+}
+.slide-5 .phone { transform: rotate(2deg); }
+.slide-5 .phone .screen { padding: 70px 18px 18px; }
+.slide-5 .week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 14px;
+}
+.slide-5 .week .day {
+  aspect-ratio: 1;
+  border: 1px solid rgba(245,241,234,0.14);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+.slide-5 .week .day .dow {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+}
+.slide-5 .week .day .dnum {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 18px;
+  color: var(--paper);
+  margin-top: 2px;
+  line-height: 1;
+}
+.slide-5 .week .day.sel {
+  background: var(--copper);
+  border-color: var(--copper);
+}
+.slide-5 .week .day.sel .dow,
+.slide-5 .week .day.sel .dnum { color: var(--bg-deep); }
+.slide-5 .week .day.dis { opacity: 0.3; }
+.slide-5 .slots-eyebrow {
+  margin-top: 18px;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--paper-faded);
+  font-weight: 500;
+  text-transform: uppercase;
+  padding-left: 4px;
+}
+.slide-5 .slots {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.slide-5 .slot {
+  border: 1px solid rgba(245,241,234,0.14);
+  background: rgba(245, 241, 234, 0.04);
+  border-radius: 14px;
+  padding: 10px 0;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--paper);
+}
+.slide-5 .slot.taken {
+  opacity: 0.32;
+  text-decoration: line-through;
+}
+.slide-5 .slot.sel {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--bg-deep);
+  font-weight: 600;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 6 — COBRO CON SEÑA (anti-no-show)
+   Insertado entre el showcase del calendario (5) y el panel del dueño
+   (ahora 7). Habla del problema más específicamente argentino: el cliente
+   que cancela a último momento. La seña por transferencia lo resuelve.
+   ════════════════════════════════════════════════════════════════════ */
+.slide-6b {
+  padding: 96px;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 64px;
+  align-items: center;
+}
+.slide-6b .copy { z-index: 5; }
+.slide-6b .copy .eyebrow { color: var(--copper); }
+.slide-6b .copy h2 {
+  font-size: 108px;
+  color: var(--paper);
+  margin-top: 28px;
+}
+.slide-6b .copy h2 em {
+  font-style: italic;
+  color: var(--copper);
+  font-weight: 400;
+}
+.slide-6b .copy p.lead {
+  margin-top: 40px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 32px;
+  color: var(--paper-soft);
+  line-height: 1.35;
+  max-width: 460px;
+}
+.slide-6b .copy .stat-mini {
+  margin-top: 44px;
+  border-left: 2px solid var(--copper);
+  padding-left: 24px;
+}
+.slide-6b .copy .stat-mini .num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 72px;
+  color: var(--copper);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.slide-6b .copy .stat-mini .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-soft);
+  margin-top: 10px;
+  max-width: 280px;
+  line-height: 1.4;
+}
+.slide-6b .copy .stat-foot {
+  margin-top: 22px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  color: var(--paper-soft);
+  max-width: 420px;
+  line-height: 1.4;
+}
+
+/* Ticket de pago dentro del slide */
+.slide-6b .ticket {
+  z-index: 5;
+  justify-self: center;
+  width: 460px;
+  background: rgba(245, 241, 234, 0.05);
+  border: 1px solid rgba(245, 241, 234, 0.18);
+  border-radius: 32px;
+  padding: 44px 40px;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  transform: rotate(-1.5deg);
+}
+.slide-6b .ticket .ticket-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+  font-weight: 500;
+}
+.slide-6b .ticket h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 32px;
+  color: var(--paper);
+  margin-top: 10px;
+  letter-spacing: -0.02em;
+}
+.slide-6b .ticket h4 em { font-style: italic; }
+.slide-6b .ticket .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 18px 0;
+  border-top: 1px solid rgba(245, 241, 234, 0.10);
+}
+.slide-6b .ticket .row .lbl {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--paper-soft);
+}
+.slide-6b .ticket .row .lbl .dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 999px;
+  margin-right: 10px;
+  vertical-align: middle;
+  transform: translateY(-2px);
+}
+.slide-6b .ticket .row .lbl .dot.teal { background: var(--teal); box-shadow: 0 0 12px var(--teal); }
+.slide-6b .ticket .row .lbl .dot.copper { background: var(--copper); box-shadow: 0 0 12px var(--copper); }
+.slide-6b .ticket .row .val {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.slide-6b .ticket .row.total {
+  margin-top: 24px;
+  padding-top: 28px;
+  border-top: 2px solid rgba(245, 241, 234, 0.20);
+}
+.slide-6b .ticket .row.total .lbl {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  color: var(--paper);
+}
+.slide-6b .ticket .row.total .val {
+  font-size: 32px;
+  color: var(--teal);
+  font-weight: 500;
+  font-style: italic;
+}
+.slide-6b .ticket .cta-btn {
+  margin-top: 28px;
+  background: var(--teal);
+  color: var(--bg-deep);
+  border-radius: 999px;
+  padding: 22px 0;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 7 — PANEL DEL DUEÑO (magazine spread)
+   ════════════════════════════════════════════════════════════════════ */
+.slide-6 {
+  padding: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+.slide-6 .header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+.slide-6 .header-row .eyebrow { color: var(--copper); }
+.slide-6 h2 {
+  font-size: 116px;
+  color: var(--paper);
+  line-height: 0.92;
+}
+.slide-6 h2 em {
+  font-style: italic;
+  color: var(--copper);
+  font-weight: 400;
+}
+.slide-6 .panels {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+  z-index: 5;
+}
+.slide-6 .panel {
+  background: rgba(245, 241, 234, 0.04);
+  border: 1px solid rgba(245, 241, 234, 0.12);
+  border-radius: 24px;
+  padding: 32px;
+}
+.slide-6 .panel .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+  margin-bottom: 24px;
+}
+.slide-6 .turno-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(245,241,234,0.08);
+}
+.slide-6 .turno-row:first-of-type { border-top: 0; padding-top: 0; }
+.slide-6 .turno-row .hora {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 38px;
+  color: var(--paper);
+  min-width: 110px;
+}
+.slide-6 .turno-row .who {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  color: var(--paper);
+  font-weight: 500;
+}
+.slide-6 .turno-row .what {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--paper-soft);
+  margin-top: 2px;
+}
+.slide-6 .stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+.slide-6 .stat {
+  background: rgba(245, 241, 234, 0.04);
+  border-radius: 16px;
+  padding: 20px;
+}
+.slide-6 .stat .stat-label {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+}
+.slide-6 .stat .stat-value {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 44px;
+  margin-top: 4px;
+  line-height: 1;
+}
+.slide-6 .stat.cobrado .stat-value { color: var(--teal); }
+.slide-6 .stat.por-confirmar .stat-value { color: var(--copper); }
+.slide-6 .top-list {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 18px;
+  margin-top: 6px;
+}
+.slide-6 .top-list .top-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid rgba(245,241,234,0.08);
+  color: var(--paper);
+}
+.slide-6 .top-list .top-item:first-child { border-top: 0; padding-top: 0; }
+.slide-6 .top-list .top-item .rk {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  color: var(--paper-faded);
+  margin-right: 14px;
+}
+.slide-6 .top-list .top-item .nb { flex: 1; }
+.slide-6 .top-list .top-item .ct { color: var(--paper-soft); font-size: 14px; }
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 7 — COMPARTILO (replica del BloqueLinkReservas)
+   ════════════════════════════════════════════════════════════════════ */
+.slide-7 {
+  padding: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+.slide-7 .header .eyebrow { color: var(--teal); }
+.slide-7 .header h2 {
+  font-size: 132px;
+  color: var(--paper);
+  margin-top: 28px;
+  line-height: 0.94;
+}
+.slide-7 .header h2 em {
+  font-style: italic;
+  color: var(--teal);
+  font-weight: 400;
+}
+.slide-7 .header p {
+  margin-top: 32px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 34px;
+  color: var(--paper-soft);
+  line-height: 1.3;
+  max-width: 760px;
+}
+.slide-7 .share-card {
+  background: linear-gradient(180deg, rgba(94, 234, 212, 0.08), rgba(94, 234, 212, 0.03));
+  border: 1px solid rgba(94, 234, 212, 0.30);
+  border-radius: 32px;
+  padding: 48px;
+  z-index: 5;
+  position: relative;
+  margin-top: auto;
+}
+.slide-7 .share-card .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 600;
+}
+.slide-7 .share-card .desc {
+  margin-top: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 22px;
+  color: var(--paper-soft);
+}
+.slide-7 .link-box {
+  margin-top: 28px;
+  background: var(--paper);
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.slide-7 .link-box .url-text {
+  font-family: 'DM Sans', monospace;
+  font-size: 28px;
+  color: var(--bg-deep);
+  flex: 1;
+}
+.slide-7 .link-box .url-text .slug { color: var(--copper-deep); font-weight: 500; }
+.slide-7 .link-box .ext-icon {
+  font-size: 22px;
+  color: var(--bg-deep);
+  opacity: 0.4;
+}
+.slide-7 .actions {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 14px;
+}
+.slide-7 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 999px;
+  padding: 22px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+.slide-7 .btn.copy {
+  background: var(--paper);
+  color: var(--bg-deep);
+  border: 1px solid rgba(245,241,234,0.4);
+}
+.slide-7 .btn.whatsapp {
+  background: var(--teal);
+  color: var(--bg-deep);
+}
+.slide-7 .btn svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+/* ════════════════════════════════════════════════════════════════════
+   SLIDE 8 — CTA (cierre minimalista)
+   ════════════════════════════════════════════════════════════════════ */
+.slide-8 {
+  padding: 120px 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+.slide-8 .river-1 { top: 20%; }
+.slide-8 .river-2 { bottom: 24%; transform: scaleX(-1); }
+.slide-8 .top { z-index: 5; display: flex; justify-content: center; }
+.slide-8 .main {
+  z-index: 5;
+  margin: 36px 0;
+}
+.slide-8 .main h2 {
+  font-size: 196px;
+  color: var(--paper);
+  line-height: 0.9;
+}
+.slide-8 .main h2 em {
+  font-style: italic;
+  color: var(--copper);
+  font-weight: 400;
+}
+.slide-8 .sub {
+  margin-top: 36px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 38px;
+  color: var(--paper-soft);
+  line-height: 1.25;
+}
+.slide-8 .bottom { z-index: 5; }
+.slide-8 .url-final {
+  font-family: 'DM Sans', monospace;
+  font-size: 36px;
+  color: var(--teal);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.slide-8 .arrow-hint {
+  margin-top: 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+}
+
+/* ─── Colofón Río Tech (placa de cierre) ────────────────────────────── */
+/* Río Turnos sigue siendo protagonista en el slide; Río Tech entra como
+   "publisher" en un colofón discreto, separado por una hairline. La
+   tipografía italic teal lo identifica con la marca paraguas sin gritar. */
+.slide-8 .colophon {
+  margin-top: 64px;
+  padding-top: 36px;
+  width: 100%;
+  max-width: 760px;
+  border-top: 1px solid rgba(245, 241, 234, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.slide-8 .colophon-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+  font-weight: 500;
+}
+/* En el slide 8 el logo Río Tech es el cierre formal del carrusel:
+   tamaño grande para que sea legible y reconocible. Mantenemos sólo el
+   drop-shadow teal sutil para integrarlo al sistema visual. */
+.slide-8 .colophon-logo {
+  display: block;
+  height: 110px;
+  width: auto;
+  filter: drop-shadow(0 0 30px rgba(94, 234, 212, 0.25));
+}
+.slide-8 .colophon-contact {
+  margin-top: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 19px;
+  color: var(--paper-soft);
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+.slide-8 .colophon-contact .sep {
+  color: var(--paper-deco);
+  font-size: 14px;
+}
+.slide-8 .colophon-contact .ig {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  color: var(--paper);
+}
+.slide-8 .colophon-contact .web {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  color: var(--paper);
+}
+.slide-8 .colophon-madein {
+  margin-top: 18px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 18px;
+  color: var(--paper-faded);
+  letter-spacing: 0.02em;
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  RÍO TURNOS · CARRUSEL INSTAGRAM · 8 SLIDES · 1080×1350<br>
+  Abrí en Chrome y screenshoteá cada slide. Las fuentes cargan desde Google Fonts.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 1 — HOOK
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-1">
+  <svg class="river river-top" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#5EEAD4" stroke-width="2" opacity="0.18" stroke-dasharray="12 8"/>
+  </svg>
+  <svg class="river river-bottom" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#FB923C" stroke-width="3" opacity="0.14"/>
+  </svg>
+
+  <div class="top-bar">
+    <span class="eyebrow">Río Turnos</span>
+    <span class="num">01 / 09</span>
+  </div>
+
+  <div class="main">
+    <h1 class="h-display">
+      Tu negocio<br>
+      todavía agarra<br>
+      turnos por <em>WhatsApp</em>.
+    </h1>
+  </div>
+
+  <div class="footer">
+    <p>Y por eso<br>perdés tres por día.</p>
+    <div class="accent-circle"></div>
+  </div>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 2 — EL DOLOR
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-2">
+  <div class="eyebrow-row">
+    <span class="eyebrow">El día a día</span>
+    <span class="eyebrow" style="color: var(--paper-faded);">02 / 09</span>
+  </div>
+
+  <h2 class="h-display">
+    Mientras trabajás,<br>
+    <em>el celular no para.</em>
+  </h2>
+
+  <div class="chats">
+    <div class="bubble a">
+      Holaaa, atendés sábado?
+      <span class="time">10:47 AM</span>
+    </div>
+    <div class="bubble b">
+      Tenés lugar para mañana temprano?
+      <span class="time">11:03 AM</span>
+    </div>
+    <div class="bubble c">
+      Hola? Sigue en pie lo del viernes?
+      <span class="time">11:21 AM</span>
+    </div>
+  </div>
+
+  <p class="footnote">
+    Y vos en el medio de un corte, una sesión, una consulta.
+  </p>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 3 — PIVOT
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-3">
+  <svg class="river" style="top: 18%;" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#5EEAD4" stroke-width="2.5" opacity="0.22"/>
+  </svg>
+
+  <div>
+    <span class="eyebrow">La solución</span>
+    <h2 class="h-display">
+      Te armamos<br>
+      <em>un link así.</em>
+    </h2>
+  </div>
+
+  <div class="link-card">
+    <span class="dot"></span>
+    <span class="url">rio-turnos.web.app/<span class="slug">tu-negocio</span></span>
+  </div>
+
+  <p class="footer-text">
+    Lo compartís una vez.<br>
+    Empieza a recibir turnos solo.
+  </p>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 4 — SHOWCASE SERVICIOS
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-4">
+  <svg class="river" style="top: 60%; opacity: 0.7;" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#5EEAD4" stroke-width="2" opacity="0.18"/>
+  </svg>
+
+  <div class="copy">
+    <span class="eyebrow">Paso 01 · Servicios</span>
+    <h2 class="h-display">
+      Tu cliente<br>
+      <em>elige el servicio.</em>
+    </h2>
+    <p>
+      Cada uno con su ícono, duración y precio.
+      Como una carta digital.
+    </p>
+  </div>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="step-header">
+        <div class="eyebrow-mini">Paso 01 de 04</div>
+        <h3>¿Qué te <em>hacés</em> hoy?</h3>
+      </div>
+      <ul class="servicios">
+        <li>
+          <span class="ord">01</span>
+          <span class="icon-slot"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg></span>
+          <div class="info"><p class="nombre">Corte clásico</p><p class="dur">45 min</p></div>
+          <p class="precio">$8.000</p>
+          <span class="chev">›</span>
+        </li>
+        <li>
+          <span class="ord">02</span>
+          <span class="icon-slot"><svg viewBox="0 0 24 24"><path d="M9.5 14.5L3 21M14 4l-3 3M19 9l-3 3M21 3l-2.5 2.5M14 5l5 5L9 20l-5-5L14 5z"/></svg></span>
+          <div class="info"><p class="nombre">Color completo</p><p class="dur">120 min</p></div>
+          <p class="precio">$22.000</p>
+          <span class="chev">›</span>
+        </li>
+        <li>
+          <span class="ord">03</span>
+          <span class="icon-slot"><svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+          <div class="info"><p class="nombre">Brushing</p><p class="dur">30 min</p></div>
+          <p class="precio">$6.500</p>
+          <span class="chev">›</span>
+        </li>
+        <li>
+          <span class="ord">04</span>
+          <span class="icon-slot"><svg viewBox="0 0 24 24"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg></span>
+          <div class="info"><p class="nombre">Maquillaje social</p><p class="dur">60 min</p></div>
+          <p class="precio">$12.000</p>
+          <span class="chev">›</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 5 — SHOWCASE CALENDARIO
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-5">
+  <svg class="river" style="top: 70%;" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#FB923C" stroke-width="3" opacity="0.14"/>
+  </svg>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="step-header">
+        <div class="eyebrow-mini">Paso 03 de 04</div>
+        <h3>Elegí <em>cuándo.</em></h3>
+      </div>
+      <div class="week">
+        <div class="day"><span class="dow">L</span><span class="dnum">11</span></div>
+        <div class="day"><span class="dow">M</span><span class="dnum">12</span></div>
+        <div class="day"><span class="dow">M</span><span class="dnum">13</span></div>
+        <div class="day sel"><span class="dow">J</span><span class="dnum">14</span></div>
+        <div class="day"><span class="dow">V</span><span class="dnum">15</span></div>
+        <div class="day dis"><span class="dow">S</span><span class="dnum">16</span></div>
+        <div class="day dis"><span class="dow">D</span><span class="dnum">17</span></div>
+      </div>
+      <div class="slots-eyebrow">Horarios disponibles · jueves 14</div>
+      <div class="slots">
+        <div class="slot">09:00</div>
+        <div class="slot taken">10:00</div>
+        <div class="slot">11:00</div>
+        <div class="slot sel">14:30</div>
+        <div class="slot">15:30</div>
+        <div class="slot taken">16:30</div>
+        <div class="slot">17:30</div>
+        <div class="slot">18:30</div>
+        <div class="slot taken">19:30</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="copy">
+    <span class="eyebrow">Paso 03 · Calendario</span>
+    <h2 class="h-display">
+      Elegí el día<br>
+      <em>y la hora.</em>
+    </h2>
+    <p>
+      Solo ve los slots que tenés libres.
+      Imposible que se duplique un turno.
+    </p>
+  </div>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 6 — COBRO CON SEÑA
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-6b">
+  <svg class="river" style="top: 60%; opacity: 0.7;" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#FB923C" stroke-width="2.5" opacity="0.16"/>
+  </svg>
+
+  <div class="copy">
+    <span class="eyebrow">Opcional · adiós no-show</span>
+    <h2 class="h-display">
+      Cobrale<br>
+      <em>la seña</em><br>
+      por transferencia.
+    </h2>
+    <p class="lead">
+      Menos ausencias. Más caja predecible.
+      El cliente reserva en serio.
+    </p>
+    <div class="stat-mini">
+      <div class="num">−70%</div>
+      <div class="label">de cancelaciones a último momento</div>
+    </div>
+    <p class="stat-foot">
+      Activala solo en los servicios que vos quieras. La apagás cuando quieras.
+    </p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-eyebrow">Resumen del turno</div>
+    <h4>Color <em>completo</em></h4>
+    <div class="row">
+      <span class="lbl">Servicio</span>
+      <span class="val">$22.000</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Profesional · Carla</span>
+      <span class="val">120 min</span>
+    </div>
+    <div class="row">
+      <span class="lbl"><span class="dot teal"></span>Seña ahora</span>
+      <span class="val" style="color: var(--teal);">$5.500</span>
+    </div>
+    <div class="row">
+      <span class="lbl"><span class="dot copper"></span>Resto en el local</span>
+      <span class="val" style="color: var(--copper);">$16.500</span>
+    </div>
+    <div class="row total">
+      <span class="lbl">Total</span>
+      <span class="val">$22.000</span>
+    </div>
+    <div class="cta-btn">Pagar seña por transferencia →</div>
+  </div>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 7 — PANEL DEL DUEÑO
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-6">
+  <div class="header-row">
+    <div>
+      <span class="eyebrow">Tu panel</span>
+      <h2 class="h-display" style="margin-top: 28px;">
+        Y vos,<br>
+        <em>en tu lado:</em>
+      </h2>
+    </div>
+    <span class="eyebrow" style="color: var(--paper-faded);">07 / 09</span>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="label">Próximos turnos · hoy</div>
+      <div class="turno-row">
+        <span class="hora">14:30</span>
+        <div>
+          <div class="who">Sofía Méndez</div>
+          <div class="what">Corte clásico · Mariano</div>
+        </div>
+      </div>
+      <div class="turno-row">
+        <span class="hora">15:30</span>
+        <div>
+          <div class="who">Lucía Pérez</div>
+          <div class="what">Color completo · Carla</div>
+        </div>
+      </div>
+      <div class="turno-row">
+        <span class="hora">17:00</span>
+        <div>
+          <div class="who">Florencia Díaz</div>
+          <div class="what">Brushing · Mariano</div>
+        </div>
+      </div>
+      <div class="turno-row">
+        <span class="hora">18:30</span>
+        <div>
+          <div class="who">Marcos Tibero</div>
+          <div class="what">Corte + barba · Mariano</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="label">Actividad del mes</div>
+      <div class="stats-grid">
+        <div class="stat cobrado">
+          <div class="stat-label">Cobrado</div>
+          <div class="stat-value">$284k</div>
+        </div>
+        <div class="stat por-confirmar">
+          <div class="stat-label">Por confirmar</div>
+          <div class="stat-value">$42k</div>
+        </div>
+      </div>
+
+      <div class="label" style="margin-top: 28px;">Top servicios</div>
+      <div class="top-list">
+        <div class="top-item"><span class="rk">1</span><span class="nb">Corte clásico</span><span class="ct">38 reservas</span></div>
+        <div class="top-item"><span class="rk">2</span><span class="nb">Color completo</span><span class="ct">21 reservas</span></div>
+        <div class="top-item"><span class="rk">3</span><span class="nb">Brushing</span><span class="ct">14 reservas</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 7 — COMPARTILO
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-7">
+  <div class="header">
+    <span class="eyebrow">El link compartible</span>
+    <h2 class="h-display">
+      Compartilo<br>
+      <em>donde quieras.</em>
+    </h2>
+    <p>
+      En la bio de Instagram. En tu estado de WhatsApp.
+      En tus historias. Una sola vez, y trabaja para vos.
+    </p>
+  </div>
+
+  <div class="share-card">
+    <div class="label">Tu link de reservas</div>
+    <div class="desc">Compartilo con tus clientes para que reserven online.</div>
+
+    <div class="link-box">
+      <span class="url-text">rio-turnos.web.app/<span class="slug">estudio-bilardo</span></span>
+      <span class="ext-icon">↗</span>
+    </div>
+
+    <div class="actions">
+      <div class="btn copy">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar link
+      </div>
+      <div class="btn whatsapp">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Compartir por WhatsApp
+      </div>
+    </div>
+  </div>
+
+  <div class="brand-strip">
+    <img src="assets/riotech-logo.png" alt="Río Tech" />
+    <span class="web">riotech.ar</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SLIDE 8 — CTA
+═══════════════════════════════════════════════════════════════════ -->
+<div class="slide slide-8">
+  <svg class="river river-1" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#5EEAD4" stroke-width="2" opacity="0.18"/>
+  </svg>
+  <svg class="river river-2" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#FB923C" stroke-width="3" opacity="0.14"/>
+  </svg>
+
+  <div class="top">
+    <span class="rt-wordmark size-l">Río Turnos</span>
+  </div>
+
+  <div class="main">
+    <h2 class="h-display">Probalo<br><em>gratis.</em></h2>
+    <p class="sub">14 días gratis. Sin tarjeta.<br>Setup en 5 minutos.</p>
+  </div>
+
+  <div class="bottom">
+    <div class="url-final">rio-turnos.web.app</div>
+    <div class="arrow-hint">Link en bio →</div>
+
+    <div class="colophon">
+      <span class="colophon-eyebrow">Un producto de</span>
+      <img class="colophon-logo" src="assets/riotech-logo.png" alt="Río Tech" />
+      <div class="colophon-contact">
+        <span class="web">riotech.ar</span>
+        <span class="sep">·</span>
+        <span class="ig">@riotechsoluciones</span>
+        <span class="sep">·</span>
+        <span>Escribinos por DM</span>
+      </div>
+      <div class="colophon-madein">Hecho en Argentina · Soporte humano</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

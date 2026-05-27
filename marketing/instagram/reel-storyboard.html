@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Río Turnos — Reel Storyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   RÍO TURNOS — Reel Storyboard (7 frames clave · 1080×1920 cada uno)
+
+   Cada frame representa un momento del reel de ~18 segundos. Las notas
+   de edición están al costado de cada uno (NO se exportan al video).
+
+   COMO USAR:
+   1. El editor de video usa cada frame como referencia visual del momento.
+   2. El video real se hace con screen recording del producto + texto on
+      screen + cortes secos.
+   3. Los frames también pueden funcionar como "carrusel vertical" para
+      Stories si no querés editar video.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-deep:     #0F1F1E;
+  --bg-soft:     #15292A;
+  --paper:       #F5F1EA;
+  --paper-soft:  rgba(245, 241, 234, 0.74);
+  --paper-faded: rgba(245, 241, 234, 0.45);
+  --teal:        #5EEAD4;
+  --copper:      #FB923C;
+  --grain-url:   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: #0a0a0c;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  padding: 56px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+}
+.preview-header {
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  max-width: 1080px;
+  text-align: center;
+  line-height: 1.7;
+}
+.frame-block {
+  display: grid;
+  grid-template-columns: 1080px 380px;
+  gap: 48px;
+  align-items: start;
+}
+.frame {
+  width: 1080px;
+  height: 1920px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+  box-shadow: 0 50px 140px rgba(0,0,0,0.7);
+  isolation: isolate;
+}
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-url);
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Notas de edición (NO se exportan, son para el editor) */
+.notes {
+  position: sticky;
+  top: 56px;
+  background: #1a1a1c;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 28px;
+  color: var(--paper);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.notes .time {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 38px;
+  color: var(--teal);
+  line-height: 1;
+}
+.notes .label {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+  margin-top: 22px;
+  margin-bottom: 6px;
+}
+.notes p { color: var(--paper-soft); }
+.notes .cue {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: var(--copper);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ─── Tipografía ───────────────────────────────────────────────────── */
+.h-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+}
+.h-display em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 1 — "ESTO ES TU NEGOCIO HOY"
+   ════════════════════════════════════════════════════════════════════ */
+.frame-1 {
+  padding: 140px 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.frame-1 .top {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+}
+.frame-1 .chats-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  margin: 60px 0;
+}
+.frame-1 .b {
+  background: var(--bg-soft);
+  border: 1px solid rgba(245,241,234,0.08);
+  border-radius: 28px;
+  padding: 28px 36px;
+  font-size: 32px;
+  max-width: 75%;
+  position: relative;
+}
+.frame-1 .b .time {
+  display: block;
+  font-size: 16px;
+  color: var(--paper-faded);
+  margin-top: 8px;
+  letter-spacing: 0.06em;
+}
+.frame-1 .b.b1 { margin-left: 0; }
+.frame-1 .b.b2 { margin-left: 80px; }
+.frame-1 .b.b3 { margin-left: 160px; }
+.frame-1 .b.b4 { margin-left: 100px; opacity: 0.7; }
+.frame-1 .b.b5 { margin-left: 200px; opacity: 0.45; }
+.frame-1 h1 {
+  font-size: 144px;
+  color: var(--paper);
+  line-height: 0.94;
+}
+.frame-1 h1 em { color: var(--copper); }
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 2 — "PERO PODRÍA SER ESTO"
+   ════════════════════════════════════════════════════════════════════ */
+.frame-2 {
+  background: #000;
+  padding: 200px 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 80px;
+}
+.frame-2 h2 {
+  font-size: 140px;
+  color: var(--paper);
+}
+.frame-2 .typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(94,234,212,0.06);
+  border: 1.5px solid rgba(94,234,212,0.4);
+  border-radius: 24px;
+  padding: 36px 56px;
+  font-family: 'DM Sans', monospace;
+  font-size: 46px;
+  color: var(--paper);
+}
+.frame-2 .typing .slug { color: var(--copper); }
+.frame-2 .typing .cursor {
+  width: 4px;
+  height: 56px;
+  background: var(--teal);
+  margin-left: 4px;
+  animation: blink 0.8s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 3 — TU CLIENTE ABRE EL LINK (showcase servicios)
+   ════════════════════════════════════════════════════════════════════ */
+.frame-3 {
+  padding: 120px 96px 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+.frame-3 .caption {
+  text-align: center;
+  font-size: 88px;
+  color: var(--paper);
+}
+.frame-3 .caption em { color: var(--teal); }
+.frame-3 .device {
+  width: 540px;
+  height: 1140px;
+  background: var(--bg-deep);
+  border: 10px solid #1f2a2b;
+  border-radius: 64px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 80px 160px rgba(0,0,0,0.7),
+    0 0 0 2px rgba(255,255,255,0.04),
+    inset 0 0 0 2px #2a3536;
+}
+.frame-3 .device::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 36px;
+  background: #000;
+  border-radius: 22px;
+  z-index: 10;
+}
+.frame-3 .device .screen {
+  position: absolute;
+  inset: 0;
+  padding: 110px 24px 24px;
+}
+.frame-3 .step-header {
+  margin-bottom: 24px;
+  padding: 0 12px;
+}
+.frame-3 .step-header .eyebrow-mini {
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  color: var(--paper-faded);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.frame-3 .step-header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 44px;
+  color: var(--paper);
+  margin-top: 10px;
+  letter-spacing: -0.02em;
+}
+.frame-3 .step-header h3 em { font-style: italic; }
+.frame-3 ul.servicios {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.frame-3 ul.servicios li {
+  background: rgba(245, 241, 234, 0.05);
+  border: 1px solid rgba(245, 241, 234, 0.14);
+  border-radius: 24px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.frame-3 ul.servicios li.active {
+  background: rgba(94, 234, 212, 0.08);
+  border-color: rgba(94, 234, 212, 0.35);
+}
+.frame-3 .ord {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 20px;
+  color: var(--paper-faded);
+  opacity: 0.55;
+  min-width: 28px;
+}
+.frame-3 .icon-slot {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.frame-3 .icon-slot svg {
+  width: 32px; height: 32px;
+  color: var(--teal);
+  stroke: var(--teal);
+  fill: none;
+  stroke-width: 1.75;
+}
+.frame-3 .info { flex: 1; min-width: 0; }
+.frame-3 .info .nombre {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--paper);
+}
+.frame-3 .info .dur {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--paper-soft);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.frame-3 .precio {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--copper);
+}
+.frame-3 .chev {
+  color: var(--paper-soft);
+  font-size: 28px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 4 — "ELIGE TODO SOLO" (3 mini-pantallas en columna)
+   ════════════════════════════════════════════════════════════════════ */
+.frame-4 {
+  padding: 100px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  align-items: center;
+}
+.frame-4 .caption {
+  font-size: 96px;
+  text-align: center;
+  color: var(--paper);
+}
+.frame-4 .caption em { color: var(--copper); }
+.frame-4 .triple {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  width: 100%;
+}
+.frame-4 .mini {
+  aspect-ratio: 9 / 16;
+  background: var(--bg-deep);
+  border: 4px solid #1f2a2b;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+.frame-4 .mini .label {
+  position: absolute;
+  bottom: -36px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 600;
+}
+.frame-4 .mini .mini-content {
+  padding: 24px 16px;
+  height: 100%;
+  position: relative;
+}
+.frame-4 .mini .mini-content::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px;
+}
+.frame-4 .mini h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 22px;
+  color: var(--paper);
+  margin-top: 26px;
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.frame-4 .mini h4 em { font-style: italic; }
+.frame-4 .mini-row {
+  background: rgba(245, 241, 234, 0.05);
+  border: 1px solid rgba(245, 241, 234, 0.12);
+  border-radius: 12px;
+  padding: 12px 10px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--paper-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.frame-4 .mini-row.active {
+  background: rgba(94, 234, 212, 0.10);
+  border-color: rgba(94, 234, 212, 0.35);
+  color: var(--paper);
+}
+.frame-4 .mini-row strong { color: var(--paper); font-weight: 400; }
+.frame-4 .mini-row .px {
+  color: var(--copper);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 13px;
+}
+.frame-4 .mini-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.frame-4 .mini-week .d {
+  aspect-ratio: 1;
+  background: rgba(245,241,234,0.05);
+  border: 1px solid rgba(245,241,234,0.10);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-size: 12px;
+  color: var(--paper);
+}
+.frame-4 .mini-week .d.s { background: var(--copper); border-color: var(--copper); color: var(--bg-deep); font-weight: 500; }
+.frame-4 .mini-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.frame-4 .mini-slots .s {
+  background: rgba(245,241,234,0.05);
+  border: 1px solid rgba(245,241,234,0.12);
+  border-radius: 8px;
+  padding: 8px 0;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-size: 12px;
+  color: var(--paper);
+}
+.frame-4 .mini-slots .s.sel { background: var(--teal); border-color: var(--teal); color: var(--bg-deep); font-weight: 600; }
+.frame-4 .mini-slots .s.tk { opacity: 0.3; text-decoration: line-through; }
+
+/* Mini de "datos" — pantalla del Paso 4 (formulario) */
+.frame-4 .mini-input {
+  border: 1px solid rgba(245,241,234,0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.frame-4 .mini-input .ml {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--paper-faded);
+  text-transform: uppercase;
+}
+.frame-4 .mini-input .mv {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  color: var(--paper);
+  margin-top: 3px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 5 — "LISTO."
+   ════════════════════════════════════════════════════════════════════ */
+.frame-5 {
+  padding: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 80px;
+}
+.frame-5 .check-circle {
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 18px rgba(94,234,212,0.12),
+    0 0 0 36px rgba(94,234,212,0.06),
+    0 0 120px rgba(94,234,212,0.5);
+}
+.frame-5 .check-circle svg {
+  width: 96px;
+  height: 96px;
+  stroke: var(--bg-deep);
+  stroke-width: 3.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.frame-5 h2 {
+  font-size: 240px;
+  color: var(--paper);
+}
+.frame-5 h2 em { color: var(--teal); }
+.frame-5 .sub {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 44px;
+  color: var(--paper-soft);
+  max-width: 720px;
+  line-height: 1.25;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 6 — PANEL DEL DUEÑO (nuevo turno entrando)
+   ════════════════════════════════════════════════════════════════════ */
+.frame-6 {
+  padding: 120px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+.frame-6 .caption {
+  font-size: 76px;
+  color: var(--paper);
+  line-height: 0.96;
+}
+.frame-6 .caption em { color: var(--copper); }
+.frame-6 .panel {
+  background: rgba(245, 241, 234, 0.04);
+  border: 1px solid rgba(245, 241, 234, 0.12);
+  border-radius: 32px;
+  padding: 40px;
+}
+.frame-6 .panel .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+  margin-bottom: 24px;
+}
+.frame-6 .row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(245,241,234,0.08);
+}
+.frame-6 .row:first-of-type { border-top: 0; padding-top: 0; }
+.frame-6 .row .hora {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 48px;
+  color: var(--paper);
+  min-width: 130px;
+}
+.frame-6 .row .who {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 26px;
+  color: var(--paper);
+  font-weight: 500;
+}
+.frame-6 .row .what {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  color: var(--paper-soft);
+  margin-top: 4px;
+}
+.frame-6 .row.new {
+  background: linear-gradient(90deg, rgba(94,234,212,0.10), transparent 60%);
+  border-radius: 16px;
+  padding: 22px 18px;
+  margin: 8px -18px;
+  border: 1px solid rgba(94,234,212,0.25);
+}
+.frame-6 .row.new .badge {
+  margin-left: auto;
+  background: var(--teal);
+  color: var(--bg-deep);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FRAME 7 — END CARD
+   ════════════════════════════════════════════════════════════════════ */
+.frame-7 {
+  padding: 160px 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+.frame-7 .top { z-index: 5; }
+.frame-7 .logomark {
+  width: 120px; height: 120px;
+  border-radius: 28px;
+  background: var(--teal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 120px rgba(94,234,212,0.4);
+}
+.frame-7 .logomark span {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--bg-deep);
+  font-size: 80px;
+  line-height: 0.8;
+  margin-top: 8px;
+}
+.frame-7 .brand {
+  margin-top: 38px;
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 44px;
+  color: var(--paper-soft);
+  letter-spacing: 0.04em;
+}
+.frame-7 .main h2 {
+  font-size: 168px;
+  color: var(--paper);
+  line-height: 0.96;
+}
+.frame-7 .main h2 em { color: var(--copper); }
+.frame-7 .main p {
+  margin-top: 44px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 44px;
+  color: var(--paper-soft);
+  line-height: 1.25;
+}
+.frame-7 .bottom { z-index: 5; }
+.frame-7 .url {
+  font-family: 'DM Sans', monospace;
+  font-size: 44px;
+  color: var(--teal);
+  font-weight: 500;
+}
+.frame-7 .hint {
+  margin-top: 26px;
+  font-size: 24px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-faded);
+}
+.frame-7 .river {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  height: 200px;
+  z-index: 1;
+}
+.frame-7 .river-1 { top: 28%; }
+.frame-7 .river-2 { bottom: 30%; transform: scaleX(-1); }
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  RÍO TURNOS · REEL STORYBOARD · 7 FRAMES · 1080×1920<br>
+  Cada frame = un momento del reel. El editor usa estos como referencia visual.<br>
+  Las notas a la derecha son SOLO para el editor — no se exportan al video.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 1
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-1">
+    <div class="top">10:47 AM · martes</div>
+    <div class="chats-stack">
+      <div class="b b1">Holaaa, atendés sábado?<span class="time">10:47 AM</span></div>
+      <div class="b b2">Tenés lugar mañana temprano?<span class="time">10:52 AM</span></div>
+      <div class="b b3">Holaaa? Sigue lo del viernes?<span class="time">11:03 AM</span></div>
+      <div class="b b4">Disculpame, una preguntita...<span class="time">11:08 AM</span></div>
+      <div class="b b5">Estás?<span class="time">11:15 AM</span></div>
+    </div>
+    <h1 class="h-display">
+      Esto es tu<br>
+      negocio <em>hoy.</em>
+    </h1>
+  </div>
+  <div class="notes">
+    <div class="time">0:00 — 0:02</div>
+    <div class="label">Acción</div>
+    <p>Plano cerrado: pantalla del celular del dueño explotada de notificaciones de WhatsApp. Zoom-out rápido para mostrar el caos completo.</p>
+    <div class="label">Texto en pantalla</div>
+    <p><em>"Esto es tu negocio hoy."</em><br>Aparece en 2 partes con corte seco.</p>
+    <div class="label">Transición al frame 2</div>
+    <p>CUT HARD a negro total. Sin fade.</p>
+    <div class="cue">Música: aún no entra · ambient/silencio leve</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 2
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-2">
+    <h2 class="h-display">Pero podría<br>ser <em>esto.</em></h2>
+    <div class="typing">
+      <span>rio-turnos.web.app/<span class="slug">tu-negocio</span></span>
+      <span class="cursor"></span>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="time">0:02 — 0:04</div>
+    <div class="label">Acción</div>
+    <p>Fondo negro absoluto. El texto "Pero podría ser esto." aparece arriba. Abajo: cursor tipeando la URL letra por letra (animación typewriter ~0.6s).</p>
+    <div class="label">Texto en pantalla</div>
+    <p>Headline arriba.<br>URL animada abajo terminando con el cursor parpadeando.</p>
+    <div class="label">Transición al frame 3</div>
+    <p>El URL se "transforma" en el celular del frame 3 (escala desde el centro).</p>
+    <div class="cue">Música: ENTRA aquí. Beat suave, tempo moderado.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 3
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-3">
+    <h2 class="caption h-display">Tu cliente<br><em>abre el link.</em></h2>
+    <div class="device">
+      <div class="screen">
+        <div class="step-header">
+          <div class="eyebrow-mini">Paso 01 de 04</div>
+          <h3>¿Qué te <em>hacés</em> hoy?</h3>
+        </div>
+        <ul class="servicios">
+          <li class="active">
+            <span class="ord">01</span>
+            <span class="icon-slot"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg></span>
+            <div class="info"><p class="nombre">Corte clásico</p><p class="dur">45 min</p></div>
+            <p class="precio">$8.000</p>
+            <span class="chev">›</span>
+          </li>
+          <li>
+            <span class="ord">02</span>
+            <span class="icon-slot"><svg viewBox="0 0 24 24"><path d="M9.5 14.5L3 21M14 4l-3 3M19 9l-3 3M21 3l-2.5 2.5M14 5l5 5L9 20l-5-5L14 5z"/></svg></span>
+            <div class="info"><p class="nombre">Color completo</p><p class="dur">120 min</p></div>
+            <p class="precio">$22.000</p>
+            <span class="chev">›</span>
+          </li>
+          <li>
+            <span class="ord">03</span>
+            <span class="icon-slot"><svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+            <div class="info"><p class="nombre">Brushing</p><p class="dur">30 min</p></div>
+            <p class="precio">$6.500</p>
+            <span class="chev">›</span>
+          </li>
+          <li>
+            <span class="ord">04</span>
+            <span class="icon-slot"><svg viewBox="0 0 24 24"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg></span>
+            <div class="info"><p class="nombre">Maquillaje social</p><p class="dur">60 min</p></div>
+            <p class="precio">$12.000</p>
+            <span class="chev">›</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="time">0:04 — 0:07</div>
+    <div class="label">Acción</div>
+    <p>Screen recording REAL del celular abriendo el link. La pantalla carga con los reveals (animaciones reveal-up que ya tiene el producto). El primer servicio se ilumina sutilmente cuando el dedo lo tap'ea.</p>
+    <div class="label">Texto en pantalla</div>
+    <p>Headline arriba en grande. El celular ocupa la mitad inferior, ligeramente inclinado (~2°) para sensación editorial.</p>
+    <div class="label">Transición al frame 4</div>
+    <p>El celular se "multiplica" en 3 — efecto de duplicación, cada uno mostrando un paso distinto.</p>
+    <div class="cue">Música: en pleno beat · puede sumar una nota teal aquí (filtro warm)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 4
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-4">
+    <h2 class="caption h-display">
+      Elige todo<br>
+      <em>solo.</em>
+    </h2>
+    <div class="triple">
+
+      <!-- mini 1 — profesional -->
+      <div class="mini">
+        <div class="mini-content">
+          <h4>¿Con <em>quién</em>?</h4>
+          <div class="mini-row"><span><strong>Mariano</strong><br><span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper-faded)">DESDE 2018</span></span></div>
+          <div class="mini-row active"><span><strong>Carla</strong><br><span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper-faded)">DESDE 2020</span></span></div>
+          <div class="mini-row"><span><strong>Joaco</strong><br><span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper-faded)">DESDE 2022</span></span></div>
+        </div>
+        <div class="label" style="bottom: -36px;">Profesional</div>
+      </div>
+
+      <!-- mini 2 — fecha y hora -->
+      <div class="mini">
+        <div class="mini-content">
+          <h4>¿<em>Cuándo</em>?</h4>
+          <div class="mini-week">
+            <div class="d">L</div>
+            <div class="d">M</div>
+            <div class="d">M</div>
+            <div class="d s">J</div>
+            <div class="d">V</div>
+            <div class="d" style="opacity:.3">S</div>
+            <div class="d" style="opacity:.3">D</div>
+          </div>
+          <div class="mini-slots">
+            <div class="s">09</div>
+            <div class="s tk">10</div>
+            <div class="s">11</div>
+            <div class="s sel">14:30</div>
+            <div class="s">15:30</div>
+            <div class="s tk">16</div>
+            <div class="s">17:30</div>
+            <div class="s">18:30</div>
+            <div class="s tk">19</div>
+          </div>
+        </div>
+        <div class="label" style="bottom: -36px;">Fecha y hora</div>
+      </div>
+
+      <!-- mini 3 — datos -->
+      <div class="mini">
+        <div class="mini-content">
+          <h4>Tus <em>datos.</em></h4>
+          <div class="mini-input"><div class="ml">Nombre</div><div class="mv">Sofía Méndez</div></div>
+          <div class="mini-input"><div class="ml">WhatsApp</div><div class="mv">+54 911 5...</div></div>
+          <div class="mini-input"><div class="ml">Email</div><div class="mv">sofi@gmail...</div></div>
+        </div>
+        <div class="label" style="bottom: -36px;">Datos</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="notes">
+    <div class="time">0:07 — 0:10</div>
+    <div class="label">Acción</div>
+    <p>El celular del frame 3 se "abre" en tres pantallas en columna. Cada una muestra un paso (profesional, fecha/hora, datos). Animación: cada mini-pantalla aparece con un stagger de ~0.15s.</p>
+    <div class="label">Texto en pantalla</div>
+    <p><em>"Elige todo solo."</em><br>Aparece arriba mientras las pantallas entran.</p>
+    <div class="label">Transición al frame 5</div>
+    <p>Las 3 pantallas colapsan en un punto central que se expande en el check circle del frame 5.</p>
+    <div class="cue">Música: crece tensión · acumulación</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 5
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-5">
+    <div class="check-circle">
+      <svg viewBox="0 0 24 24"><polyline points="5 13 10 18 19 7"/></svg>
+    </div>
+    <h2 class="h-display"><em>Listo.</em></h2>
+    <p class="sub">Turno reservado.<br>El cliente ya tiene su confirmación.</p>
+  </div>
+  <div class="notes">
+    <div class="time">0:10 — 0:12</div>
+    <div class="label">Acción</div>
+    <p>Pantalla casi vacía. El círculo de check aparece con un "pop" (escala 0 → 1 con bounce sutil + glow teal). Texto "Listo." aparece debajo con fade up.</p>
+    <div class="label">Texto en pantalla</div>
+    <p>Solo <em>"Listo."</em> en grande. El subtítulo aparece 0.4s después.</p>
+    <div class="label">Transición al frame 6</div>
+    <p>Hard cut al panel del dueño. Sin transición — corte seco para sorprender.</p>
+    <div class="cue">Música: PEAK del beat · momento de respiro · drop</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 6
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-6">
+    <h2 class="caption h-display">
+      Y vos sumás un<br>
+      turno <em>sin hacer nada.</em>
+    </h2>
+    <div class="panel">
+      <div class="label">Próximos turnos · hoy</div>
+      <div class="row">
+        <span class="hora">12:30</span>
+        <div>
+          <div class="who">Julieta Lago</div>
+          <div class="what">Brushing · Carla</div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="hora">14:30</span>
+        <div>
+          <div class="who">Sofía Méndez</div>
+          <div class="what">Color completo · Carla</div>
+        </div>
+        <span class="badge">Nuevo</span>
+      </div>
+      <div class="row">
+        <span class="hora">16:00</span>
+        <div>
+          <div class="who">Florencia Díaz</div>
+          <div class="what">Corte + barba · Mariano</div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="hora">17:30</span>
+        <div>
+          <div class="who">Marcos Tibero</div>
+          <div class="what">Corte clásico · Mariano</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="time">0:12 — 0:15</div>
+    <div class="label">Acción</div>
+    <p>Vista del panel del dueño. El nuevo turno (Sofía, 14:30) se desliza dentro de la lista con animación slide-down + glow teal y un badge "Nuevo".</p>
+    <div class="label">Texto en pantalla</div>
+    <p>Headline arriba en grande. La lista del panel ocupa la mitad inferior.</p>
+    <div class="label">Transición al frame 7</div>
+    <p>Fade a negro suave (~0.4s).</p>
+    <div class="cue">Música: outro · pierde fuerza preparando el cierre</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FRAME 7 — END CARD
+═══════════════════════════════════════════════════════════════════ -->
+<div class="frame-block">
+  <div class="frame frame-7">
+    <svg class="river river-1" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#5EEAD4" stroke-width="2" opacity="0.20" fill="none" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <svg class="river river-2" viewBox="0 0 1080 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M -100 100 Q 300 20 540 100 T 1180 100" stroke="#FB923C" stroke-width="3" opacity="0.14" fill="none" vector-effect="non-scaling-stroke"/>
+    </svg>
+
+    <div class="top">
+      <div class="logomark"><span>r</span></div>
+      <div class="brand">Río Turnos</div>
+    </div>
+
+    <div class="main">
+      <h2 class="h-display">Tu negocio,<br><em>online.</em></h2>
+      <p>14 días gratis.<br>Setup en 5 minutos.</p>
+    </div>
+
+    <div class="bottom">
+      <div class="url">rio-turnos.web.app</div>
+      <div class="hint">Link en bio →</div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="time">0:15 — 0:18</div>
+    <div class="label">Acción</div>
+    <p>Cierre estático. Logo, marca, headline, link. Los ríos del fondo se animan sutil (loop infinito).</p>
+    <div class="label">Texto en pantalla</div>
+    <p>Logo arriba, "Tu negocio, online." centrado, URL abajo. Todo aparece con stagger de 0.15s.</p>
+    <div class="label">Loop infinito sugerido</div>
+    <p>Si querés que el reel "vuelva al inicio", del frame 7 cortás directo al frame 1 — funciona en loop bien.</p>
+    <div class="cue">Música: fade out suave</div>
+  </div>
+</div>
+
+</body>
+</html>

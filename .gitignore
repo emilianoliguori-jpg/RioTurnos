@@ -22,6 +22,12 @@ dist-ssr
 firebase-debug.log
 firestore-debug.log
 
+# Marketing: assets de audio/video con copyright ambiguo (cada uno consigue
+# el suyo localmente y lo pone en marketing/instagram/assets/musica.mp3)
+marketing/instagram/assets/musica.mp3
+marketing/instagram/assets/*.mp4
+marketing/instagram/assets/*.wav
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
