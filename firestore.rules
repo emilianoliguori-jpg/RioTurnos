@@ -152,6 +152,23 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────────
+    // EMPRESAS — datos de la app RioFactura (facturacion / contabilidad).
+    // App independiente de Rio Turnos. Cada usuario administra UNA empresa
+    // cuyo id de documento es su propio uid. Aislamiento total: nadie lee
+    // ni escribe la empresa de otro. Todas las subcolecciones (clientes,
+    // proveedores, comprobantes, compras, cobros, pagos, contadores)
+    // heredan la misma regla.
+    // ─────────────────────────────────────────────────────────────────
+
+    match /empresas/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /{documentos=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
     // DEFAULT DENY
     // Cualquier ruta no listada arriba queda denegada por no tener regla.
     // ─────────────────────────────────────────────────────────────────
