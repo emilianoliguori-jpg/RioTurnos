@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+*.log
+.runtimeconfig.json
+# Nunca commitear certificados ni claves
+*.crt
+*.key
+*.pem

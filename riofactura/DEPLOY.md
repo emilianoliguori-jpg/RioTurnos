@@ -70,3 +70,80 @@ Al terminar, la consola te muestra la **Hosting URL**. Esa es tu app.
   el mismo proyecto Firebase pero en URLs distintas, creá un segundo *site* en
   Hosting (`firebase hosting:sites:create riofactura`) y agregá
   `"site": "riofactura"` dentro de `hosting` en este `firebase.json`.
+
+---
+
+# 🧾 Conectar AFIP real (CAE legal) — Cloud Function
+
+El conector con AFIP (WSAA + WSFEv1) vive en `functions/`. Corre en el
+servidor porque necesita firmar con la clave privada y hacer llamadas SOAP.
+
+### Requisitos
+
+- **Plan Blaze** (pago por uso) en Firebase: las Functions necesitan salida a
+  internet (AFIP). Tiene capa gratuita generosa; facturar unas pocas no cuesta
+  nada en la práctica.
+- Tu **certificado** AFIP (`.crt`) y tu **clave privada** (`.key`) — el par que
+  ya generamos.
+
+### 1. Cargar el certificado y la clave como secretos
+
+Nunca van en el repo. Se cargan como *secrets* de Functions:
+
+```bash
+cd riofactura
+firebase functions:secrets:set AFIP_CERT   # pegás el contenido del .crt
+firebase functions:secrets:set AFIP_KEY    # pegás el contenido del .key
+```
+
+### 2. Configurar CUIT y entorno
+
+Creá el archivo `functions/.env` (NO se sube a git):
+
+```
+AFIP_CUIT=30656586539
+AFIP_MODO=homologacion
+```
+
+> `AFIP_MODO`: `homologacion` para probar, `produccion` para facturar legal.
+
+### 3. Decirle al frontend que use AFIP real
+
+En `riofactura/.env`, agregá:
+
+```
+VITE_AFIP_MODO=homologacion
+```
+
+(En `simulado` —o sin esta variable— la app usa CAE de prueba local y NO llama
+a la function.)
+
+### 4. Desplegar
+
+```bash
+npm install --prefix functions
+firebase deploy --only functions
+npm run deploy        # vuelve a publicar el hosting con VITE_AFIP_MODO
+```
+
+### 5. Probar
+
+Emití un comprobante desde la app. La function pide el número a AFIP, solicita
+el CAE y lo devuelve. Si algo falla, AFIP responde con un código de error/
+observación que la app muestra — copialo para diagnosticar.
+
+### Pasar a producción
+
+Cuando la prueba en homologación funcione:
+1. Cargá el certificado de **producción** (`firebase functions:secrets:set AFIP_CERT`).
+2. Cambiá `AFIP_MODO=produccion` (en `functions/.env`) y `VITE_AFIP_MODO=produccion`.
+3. Redesplegá functions + hosting.
+
+### Notas técnicas
+
+- La firma CMS usa **SHA-256**. Si AFIP la rechazara (entornos viejos a veces
+  piden SHA-1), es el único punto a ajustar en `functions/lib/wsaa.js`.
+- El token WSAA se cachea en memoria (válido 12 hs) para no re-loguear en cada
+  factura.
+- La numeración la asigna **AFIP** (`FECompUltimoAutorizado` + 1), así nunca
+  hay huecos ni choques con otro software.

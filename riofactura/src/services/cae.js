@@ -3,29 +3,25 @@
 // ════════════════════════════════════════════════════════════════════
 //
 // El CAE (Codigo de Autorizacion Electronico) es lo que convierte un
-// comprobante en una FACTURA LEGAL. Lo otorga AFIP via el web service
-// WSFEv1, previa autenticacion en WSAA firmando un ticket con el
-// certificado digital X.509 de la empresa (por CUIT).
+// comprobante en una FACTURA LEGAL. Lo otorga AFIP via WSFEv1, previa
+// autenticacion WSAA firmando con el certificado digital de la empresa.
 //
-// Esa parte es BACKEND (no se puede hacer desde el navegador: requiere
-// firmar PKCS#7 con la clave privada y llamar SOAP). Por eso esta funcion
-// esta DESACOPLADA: hoy devuelve un CAE SIMULADO para que toda la app
-// (numeracion, cuenta corriente, PDF, reportes) funcione de punta a punta.
+// Esa parte corre en el BACKEND (Cloud Function `solicitarCae`, en
+// functions/), porque requiere la clave privada y llamadas SOAP que no
+// pueden hacerse desde el navegador.
 //
-// PARA ENCHUFAR AFIP REAL (cuando tengas certificado + CUIT):
-//   1. Crear una Cloud Function `solicitarCAE` que:
-//        a. Autentique en WSAA (homologacion o produccion) -> token + sign.
-//        b. Llame FECAESolicitar de WSFEv1 con los datos del comprobante.
-//        c. Devuelva { cae, caeVencimiento, resultado }.
-//   2. Reemplazar el cuerpo de `solicitarCAE` de abajo por un fetch
-//      autenticado a esa function. El resto de la app no cambia.
+// Modos (VITE_AFIP_MODO):
+//   - 'simulado'  : CAE de prueba local. Sirve para operar la app sin AFIP.
+//   - 'homologacion' / 'produccion' : llama a la Cloud Function real.
 //
-// El modo se guarda en cada comprobante (cae.modo) para distinguir
-// claramente lo simulado de lo legal.
+// En modo real, la FUNCTION es la fuente de verdad de la numeracion
+// (la pide a AFIP), asi que devuelve { numero, cae, caeVencimiento }.
 
-const MODO = import.meta.env.VITE_AFIP_MODO || 'simulado' // 'simulado' | 'homologacion' | 'produccion'
+import { httpsCallable } from 'firebase/functions'
+import { functions } from '../lib/firebase'
 
-// Genera un CAE simulado de 14 digitos y vencimiento a 10 dias.
+const MODO = import.meta.env.VITE_AFIP_MODO || 'simulado'
+
 function caeSimulado() {
   let cae = ''
   for (let i = 0; i < 14; i++) cae += Math.floor(Math.random() * 10)
@@ -37,27 +33,29 @@ function caeSimulado() {
   return { cae, caeVencimiento: `${y}-${m}-${d}`, modo: 'simulado' }
 }
 
-// Solicita el CAE para un comprobante ya numerado.
-// `comprobante` y `empresa` se pasan completos para que la futura
-// implementacion real tenga todo lo que AFIP necesita.
-export async function solicitarCAE(/* { empresa, comprobante } */) {
+// Solicita el CAE para un comprobante ya calculado.
+// Devuelve { cae, caeVencimiento, modo, numero? }.
+// Si trae `numero`, ese es el numero correlativo asignado por AFIP y debe
+// usarse en lugar del contador local.
+export async function solicitarCAE({ comprobante } = {}) {
   if (MODO === 'simulado') {
-    // Pequena latencia para que la UI muestre el estado "solicitando".
     await new Promise((r) => setTimeout(r, 400))
     return caeSimulado()
   }
 
-  // TODO: cuando exista la Cloud Function, llamar aca:
-  // const res = await fetch(import.meta.env.VITE_AFIP_FUNCTION_URL, {
-  //   method: 'POST',
-  //   headers: { Authorization: `Bearer ${await getIdToken()}` },
-  //   body: JSON.stringify({ empresa, comprobante }),
-  // })
-  // const { cae, caeVencimiento } = await res.json()
-  // return { cae, caeVencimiento, modo: MODO }
-  throw new Error(
-    `Modo AFIP "${MODO}" todavia no implementado. Configura VITE_AFIP_MODO=simulado o conecta la Cloud Function de WSFEv1.`
-  )
+  // Modo real: delega en la Cloud Function (WSAA + WSFEv1).
+  const fn = httpsCallable(functions, 'solicitarCae')
+  const { data } = await fn({ comprobante })
+  if (!data?.cae) {
+    throw new Error('AFIP no devolvió un CAE válido.')
+  }
+  return {
+    cae: data.cae,
+    caeVencimiento: data.caeVencimiento,
+    numero: data.numero,
+    observaciones: data.observaciones || [],
+    modo: data.modo || MODO,
+  }
 }
 
 export const modoCAE = MODO

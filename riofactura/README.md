@@ -61,10 +61,10 @@ Por eso la integración está **desacoplada** en un único archivo:
   toda la administración (numeración, IVA, cuenta corriente, PDF, Libro IVA)
   funcione de punta a punta. Los comprobantes se marcan claramente como **no
   válidos como factura**.
-- **Para habilitar AFIP real:** crear una Cloud Function `solicitarCAE` que
-  autentique en WSAA y llame `FECAESolicitar` de WSFEv1, y reemplazar el cuerpo
-  de `solicitarCAE` en `src/services/cae.js` por un `fetch` a esa función. El
-  resto de la app no cambia.
+- **AFIP real (ya incluido):** el conector WSAA + WSFEv1 está en `functions/`
+  (Cloud Function `solicitarCae`). Para activarlo se configura el certificado,
+  CUIT y modo, y se setea `VITE_AFIP_MODO=homologacion|produccion`. Pasos
+  completos en `DEPLOY.md` (sección "Conectar AFIP real").
 
 El modo se controla con la variable `VITE_AFIP_MODO`
 (`simulado` | `homologacion` | `produccion`).

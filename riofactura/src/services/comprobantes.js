@@ -50,15 +50,12 @@ export async function emitirComprobante(uid, borrador) {
   const calc = calcularComprobante(borrador.items, borrador.tipoId)
   if (calc.total <= 0) throw new Error('El total debe ser mayor a cero.')
 
-  const numero = await proximoNumero(uid, borrador.puntoVenta, borrador.tipoId)
-
-  const cabecera = {
+  const base = {
     tipoId: borrador.tipoId,
     tipoLabel: tipo.label,
     letra: tipo.letra,
     clase: tipo.clase,
     puntoVenta: borrador.puntoVenta,
-    numero,
     fecha: borrador.fecha || hoyISO(),
     cliente: borrador.cliente || null,
     clienteId: borrador.cliente?.id || null,
@@ -73,7 +70,15 @@ export async function emitirComprobante(uid, borrador) {
     estado: 'autorizado',
   }
 
-  const cae = await solicitarCAE({ comprobante: cabecera })
+  // En modo AFIP real, el numero lo asigna AFIP (viene en `cae.numero`).
+  // En modo simulado, lo tomamos del contador local atomico.
+  const cae = await solicitarCAE({ comprobante: base })
+  const numero =
+    cae.numero != null
+      ? cae.numero
+      : await proximoNumero(uid, borrador.puntoVenta, borrador.tipoId)
+
+  const cabecera = { ...base, numero }
 
   const ref = await addDoc(colComprobantes(uid), {
     ...cabecera,
