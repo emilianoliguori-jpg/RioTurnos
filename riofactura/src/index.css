@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #F6F7F9;
+  --color-ink: #0E1726;
+  --color-brand: #0B6E6E;
+  --color-brand-dark: #064545;
+  --color-brand-soft: #E3F0EF;
+  --color-accent: #4F46E5;
+  --color-accent-soft: #EEF0FF;
+  --color-ok: #15803D;
+  --color-ok-soft: #E6F4EA;
+  --color-warn: #B45309;
+  --color-warn-soft: #FBF1E1;
+  --color-danger: #B91C1C;
+  --color-danger-soft: #FBE9E9;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", ui-serif, Georgia, serif;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar discreto */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(14, 23, 38, 0.18);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(14, 23, 38, 0.3);
+  background-clip: padding-box;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   IMPRESION — solo se imprime el comprobante (.hoja-comprobante).
+   El resto de la UI se oculta. Usar "Guardar como PDF" del navegador.
+   ════════════════════════════════════════════════════════════════ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .hoja-comprobante,
+  .hoja-comprobante * {
+    visibility: visible;
+  }
+  .hoja-comprobante {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
