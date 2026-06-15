@@ -11,6 +11,8 @@ import {
   formatearNumeroComprobante,
 } from '../lib/formato'
 import { ALICUOTAS_IVA, etiquetaCondicionReceptor, etiquetaTipoDoc } from '../lib/afip'
+import { afipQrUrl } from '../lib/afipQr'
+import { QRCodeSVG } from 'qrcode.react'
 import { Button, Spinner } from '../components/ui'
 
 export default function ComprobanteDetallePage() {
@@ -158,21 +160,42 @@ export default function ComprobanteDetallePage() {
           <p className="mt-4 text-xs text-ink/60">Obs.: {comp.observaciones}</p>
         )}
 
-        {/* Pie CAE */}
-        <div className="mt-6 border-t border-ink/20 pt-3 text-right text-sm">
-          <p>
-            <span className="text-ink/55">CAE Nº: </span>
-            <span className="font-mono font-semibold">{comp.cae?.cae || '—'}</span>
-          </p>
-          <p>
-            <span className="text-ink/55">Vto. CAE: </span>
-            {formatearFecha(comp.cae?.caeVencimiento)}
-          </p>
-          {comp.cae?.modo === 'simulado' && (
-            <p className="mt-1 text-xs font-semibold text-warn">
-              ⚠ COMPROBANTE NO VÁLIDO COMO FACTURA — CAE simulado (modo prueba)
+        {/* Pie: QR de AFIP (izquierda) + CAE (derecha) */}
+        <div className="mt-6 flex items-end justify-between gap-4 border-t border-ink/20 pt-3">
+          <div className="shrink-0">
+            {comp.cae?.cae && (
+              <QRCodeSVG
+                value={afipQrUrl({
+                  fecha: comp.fecha,
+                  cuit: empresa?.cuit,
+                  ptoVenta: comp.puntoVenta,
+                  tipoCmp: comp.tipoId,
+                  nroCmp: comp.numero,
+                  importe: comp.total,
+                  cae: comp.cae.cae,
+                  tipoDocRec: comp.cliente?.tipoDoc,
+                  nroDocRec: comp.cliente?.nroDoc,
+                })}
+                size={104}
+                level="M"
+              />
+            )}
+          </div>
+          <div className="text-right text-sm">
+            <p>
+              <span className="text-ink/55">CAE Nº: </span>
+              <span className="font-mono font-semibold">{comp.cae?.cae || '—'}</span>
             </p>
-          )}
+            <p>
+              <span className="text-ink/55">Vto. CAE: </span>
+              {formatearFecha(comp.cae?.caeVencimiento)}
+            </p>
+            {comp.cae?.modo === 'simulado' && (
+              <p className="mt-1 text-xs font-semibold text-warn">
+                ⚠ COMPROBANTE NO VÁLIDO COMO FACTURA — CAE simulado (modo prueba)
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
