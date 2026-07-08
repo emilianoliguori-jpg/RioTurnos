@@ -29,6 +29,12 @@ export default function HomePage() {
           >
             Soy cliente · entrar al panel
           </Link>
+          <Link
+            to="/trafico"
+            className="font-sans text-sm text-ink/60 hover:text-ink underline"
+          >
+            Medidor de circulación · vía pública
+          </Link>
         </div>
 
         <p className="font-sans text-ink/40 text-xs mt-10">

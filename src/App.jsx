@@ -17,6 +17,7 @@ import PanelPage from './pages/PanelPage'
 import AdminPage from './pages/AdminPage'
 import PlanesPage from './pages/PlanesPage'
 import ReservaPage from './pages/ReservaPage'
+import MedidorTrafico from './pages/MedidorTrafico'
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/planes" element={<PlanesPage />} />
+          <Route path="/trafico" element={<MedidorTrafico />} />
           {/* Rutas DEV-only. Vite tree-shakea estas ramas en build de
               producción — las rutas ni siquiera aparecen en el bundle. */}
           {import.meta.env.DEV && (
